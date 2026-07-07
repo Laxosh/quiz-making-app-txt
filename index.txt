@@ -8,84 +8,122 @@
     <title>Quiz Test Maker</title>
     <style>
         /*
-         * ===================================================================
-         * NEW GLOBAL THEME IMPLEMENTATION (Teal & Amber)
-         * This theme is applied to the entire app interface, excluding the
-         * core layout of the quiz player page as requested.
-         *
-         * Primary Color:    Deep Teal (#00796B) - Professional and calming.
-         * Secondary/Accent: Bright Amber (#FFA000) - For actions and highlights.
-         * Background:       Light Gray (#ECEFF1) - Soft and easy on the eyes.
-         * Surface:          White (#FFFFFF) - For cards to pop.
-         * Text:             Dark Slate (#37474F) - Excellent readability.
-         * ===================================================================
+          * ===================================================================
+          * GLOBAL THEME SYSTEM WITH DYNAMIC LIGHT & DARK MODES
+          * Primary Color:     Deep Teal (#00796B)
+          * Secondary/Accent: Bright Amber (#FFA000)
+          * ===================================================================
         */
         :root {
             --primary-color: #00796B;
             --primary-darker: #004D40;
-            --primary-lightest: #EBF9EB;
             --secondary-color: #FFA000;
             --secondary-darker: #FF6F00;
-            --background-color: #EBF9EB;
-            --surface-color: #ffffff;
             --border-color: #CFD8DC;
-            --text-color: #37474F;
-            --text-color-light: #78909C;
             --danger-color: #C62828;
             --danger-light: #FFEBEE;
             --success-color: #2E7D32;
             --success-light: #E8F5E9;
             --warning-bg: #FFF8E1;
             --warning-text: #FF8F00;
-            --folder-color: #FFA000; /* Using secondary color for folders */
-            --border-radius: 8px;
+            --folder-color: #FFA000;
+            --border-radius: 12px;
             --nav-height: 60px;
+
+            /* Light Theme Specific overrides */
+            --background-color: #EBF9EB;
+            --surface-color: #ffffff;
+            --text-color: #37474F;
+            --text-color-light: #78909C;
+            --primary-lightest: #EBF9EB;
+            --header-bg: #ffffff;
+            --bottom-nav-bg: #ffffff;
+        }
+
+        body.dark-mode {
+            --background-color: #121212;
+            --surface-color: #1E1E1E;
+            --text-color: #E0E0E0;
+            --text-color-light: #A0A0A0;
+            --primary-lightest: #1A302B;
+            --border-color: #333333;
+            --header-bg: #1E1E1E;
+            --bottom-nav-bg: #1E1E1E;
+            --warning-bg: #2D2615;
+            --warning-text: #FFB300;
+            --success-light: #162D18;
+            --danger-light: #2D1616;
         }
 
         * { box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: var(--background-color); color: var(--text-color); line-height: 1.6; padding-bottom: calc(var(--nav-height) + 20px); min-height: 100vh; display: flex; flex-direction: column; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; background-color: var(--background-color); color: var(--text-color); line-height: 1.6; padding-top: 80px; padding-bottom: calc(var(--nav-height) + 20px); min-height: 100vh; display: flex; flex-direction: column; transition: background-color 0.3s, color 0.3s; }
         .hidden { display: none !important; }
         .container { max-width: 1200px; margin: 20px auto; padding: 20px; flex: 1; width: 100%; }
-        header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid var(--border-color); padding-bottom: 20px; }
+        
+        /* Fixed and Curved Top Header Layout */
+        header { position: fixed; top: 10px; left: 10px; right: 10px; background-color: var(--header-bg); border: 2px solid var(--border-color); border-radius: var(--border-radius); box-shadow: 0 4px 10px rgba(0,0,0,0.08); padding: 10px 0; z-index: 5000; transition: background-color 0.3s, border-color 0.3s; }
         .header-content-wrapper { display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: auto; padding: 0 20px; }
         .logo-container { display: flex; align-items: center; justify-content: center; gap: 12px; }
         .app-logo { width: 40px; height: 40px; stroke: var(--primary-color); }
-        header h1 { color: var(--primary-color); margin: 0; font-size: 2rem; user-select: none; cursor: pointer; }
+        header h1 { color: var(--primary-color); margin: 0; font-size: 1.8rem; user-select: none; cursor: pointer; }
+        
+        /* Human Menu System Setup */
+        #editor-login-container { position: relative; }
+        #editor-login-logo { width: 36px; height: 36px; cursor: pointer; color: var(--text-color-light); transition: color 0.2s, transform 0.2s; display: flex; align-items: center; justify-content: center; }
+        #editor-login-logo:hover { color: var(--primary-color); transform: scale(1.05); }
+        
+        /* Dropdown Options Layout Block */
+        .human-dropdown-menu { position: absolute; top: 45px; right: 0; background-color: var(--surface-color); border: 2px solid var(--border-color); border-radius: var(--border-radius); box-shadow: 0 4px 15px rgba(0,0,0,0.15); width: 280px; padding: 10px; z-index: 6000; display: none; flex-direction: column; gap: 4px; }
+        .human-dropdown-menu.show { display: flex; }
+        .dropdown-opt-btn { background: none; border: none; width: 100%; padding: 10px 12px; text-align: left; font-size: 14px; font-weight: 600; color: var(--text-color); cursor: pointer; border-radius: 6px; transition: background-color 0.2s, color 0.2s; display: flex; align-items: center; justify-content: space-between; }
+        .dropdown-opt-btn:hover { background-color: var(--primary-lightest); color: var(--primary-color); }
+        
+        /* Integrated Profile Information Card Area */
+        #editor-profile-card { background: var(--primary-lightest); border: 1px solid var(--primary-color); border-radius: 6px; padding: 10px; font-size: 13px; text-align: left; display: flex; flex-direction: column; gap: 8px; margin-bottom: 5px; }
+        .profile-info strong { display: block; color: var(--primary-color); font-size: 14px; }
+        .profile-info span { color: var(--text-color); display: block; word-break: break-all; }
+        .profile-backend-link { font-size: 11px; margin-top: 3px; word-break: break-all; }
+        .profile-backend-link a { color: var(--primary-darker); font-weight: bold; }
+
+        /* Inline Header Navigation Grid (Desktop Scaling Toggle overrides) */
+        .desktop-header-nav { display: none; align-items: center; gap: 15px; }
+        .desktop-nav-link { background: none; border: none; font-size: 14px; font-weight: 700; color: var(--text-color-light); cursor: pointer; padding: 6px 12px; transition: all 0.2s; border-radius: 6px; text-decoration: none; }
+        .desktop-nav-link.active, .desktop-nav-link:hover { color: var(--primary-color); background-color: var(--primary-lightest); }
+
+        /* Curved Navigation Bottom Bar Components */
+        .bottom-nav { position: fixed; bottom: 10px; left: 10px; right: 10px; width: calc(100% - 20px); height: var(--nav-height); background: var(--bottom-nav-bg); border: 2px solid var(--border-color); border-radius: var(--border-radius); display: flex; justify-content: space-around; align-items: center; z-index: 5000; box-shadow: 0 -4px 15px rgba(0,0,0,0.06); transition: background-color 0.3s, border-color 0.3s; overflow: hidden; }
+        .nav-btn { background: none; border: none; flex: 1; height: 100%; font-size: 14px; font-weight: 700; color: var(--text-color-light); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px; }
+        .nav-btn.active { color: var(--primary-color); background-color: var(--primary-lightest); border-top: 3px solid var(--primary-color); border-radius: 0; }
+        
+        /* SEO Content, Cards and Structural Layout Parameters */
         .seo-content-block { margin-bottom: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
         .seo-content-block h1 { font-size: 2.2em; color: var(--primary-color); margin-bottom: 5px; margin-top: 0; }
         .seo-content-block h2 { font-size: 1.3em; color: var(--text-color-light); font-weight: 500; margin-top: 0; margin-bottom: 15px; }
         .seo-content-block p { font-size: 1.05em; color: var(--text-color); max-width: 800px; line-height: 1.7; }
-        #global-footer { background-color: var(--text-color); color: #ecf0f1; padding: 30px 20px; text-align: center; margin-top: 40px; border-top: 4px solid var(--primary-color); margin-bottom: var(--nav-height); }
+        #global-footer { background-color: #263238; color: #ecf0f1; padding: 30px 20px; text-align: center; margin-top: 40px; border-top: 4px solid var(--primary-color); margin-bottom: var(--nav-height); border-radius: var(--border-radius) var(--border-radius) 0 0; }
         .footer-main-links { margin-bottom: 15px; font-weight: bold; font-size: 1.1em; }
         .footer-main-links a { color: #fff; text-decoration: none; margin: 0 10px; transition: color 0.2s; }
         .footer-main-links a:hover { color: var(--secondary-color); }
         .footer-dynamic-links { margin-top: 15px; padding-top: 15px; border-top: 1px solid #546E7A; display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
         .footer-dynamic-links a { color: #CFD8DC; text-decoration: none; font-size: 0.9em; }
         .footer-dynamic-links a:hover { color: white; text-decoration: underline; }
-        
         .footer-sections-wrapper { display: flex; flex-wrap: wrap; justify-content: center; gap: 30px; margin-top: 20px; border-top: 1px solid #546E7A; padding-top: 20px; }
         .footer-col { text-align: center; min-width: 150px; }
         .footer-col h4 { color: var(--secondary-color); margin-bottom: 10px; font-size: 1em; text-transform: uppercase; margin-top: 0; }
         .footer-col a { color: #fff; display: block; margin-bottom: 5px; font-size: 0.9em; text-decoration: none; }
         .footer-col a:hover { text-decoration: underline; color: var(--primary-color); }
-
         .copyright { margin-top: 20px; font-size: 0.8em; color: #90A4AE; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: var(--nav-height); background: white; border-top: 1px solid var(--border-color); display: flex; justify-content: space-around; align-items: center; z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
-        .nav-btn { background: none; border: none; flex: 1; height: 100%; font-size: 14px; font-weight: 600; color: var(--text-color-light); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; transition: all 0.2s; }
-        .nav-btn.active { color: var(--primary-color); background-color: var(--primary-lightest); border-top: 3px solid var(--primary-color); }
-        .nav-icon { font-size: 20px; }
         
+        /* Dashboard Grid Components */
         #about-content { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
-        
         #legal-content-section { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 30px; border-top: 2px solid var(--border-color); padding-top: 30px; }
-        .legal-card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); border: 1px solid var(--border-color); position: relative; }
+        .legal-card { background: var(--surface-color); padding: 25px; border-radius: var(--border-radius); box-shadow: 0 2px 8px rgba(0,0,0,0.07); border: 1px solid var(--border-color); position: relative; }
         .legal-card:target { border: 2px solid var(--secondary-color); box-shadow: 0 0 15px rgba(255, 160, 0, 0.3); } 
         .legal-card h3 { color: var(--primary-color); margin-top: 0; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
         .legal-card p { font-size: 0.95em; color: var(--text-color); line-height: 1.6; }
         .share-legal-btn { position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-color-light); }
         .share-legal-btn:hover { color: var(--primary-color); transform: scale(1.1); }
-
-        .about-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); text-align: center; position: relative; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid var(--border-color); }
+        .about-card { background: var(--surface-color); padding: 20px; border-radius: var(--border-radius); box-shadow: 0 2px 8px rgba(0,0,0,0.07); text-align: center; position: relative; transition: transform 0.2s, box-shadow 0.2s; border: 1px solid var(--border-color); }
         .about-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .about-icon { font-size: 40px; margin-bottom: 10px; display: block; }
         .about-title { font-weight: 600; font-size: 1.1em; margin-bottom: 10px; color: var(--text-color); }
@@ -94,19 +132,13 @@
         .delete-about-btn { position: absolute; top: 10px; right: 10px; color: var(--danger-color); background: none; border: none; font-size: 18px; cursor: pointer; }
         .share-about-btn { position: absolute; top: 10px; left: 10px; color: var(--primary-color); background: none; border: none; font-size: 18px; cursor: pointer; }
         .share-about-btn:hover { transform: scale(1.1); }
-        .fab-btn { position: fixed; bottom: 80px; right: 20px; width: 60px; height: 60px; background-color: var(--primary-color); color: white; border-radius: 50%; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-size: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1001; transition: all 0.2s; }
+        
+        /* Floating Buttons and Action Windows Layout */
+        .fab-btn { position: fixed; bottom: 85px; right: 20px; width: 60px; height: 60px; background-color: var(--primary-color); color: white; border-radius: 50%; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-size: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 1001; transition: all 0.2s; }
         .fab-btn:hover { transform: scale(1.1); background-color: var(--primary-darker); }
-        .fab-menu { position: fixed; bottom: 150px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 1001; }
-        .fab-menu-btn { background: white; color: var(--text-color); border: 1px solid var(--border-color); padding: 10px 20px; border-radius: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); cursor: pointer; font-weight: 600; text-align: right; }
+        .fab-menu { position: fixed; bottom: 155px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 1001; }
+        .fab-menu-btn { background: var(--surface-color); color: var(--text-color); border: 1px solid var(--border-color); padding: 10px 20px; border-radius: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); cursor: pointer; font-weight: 600; text-align: right; }
         .fab-menu-btn:hover { background: var(--primary-lightest); color: var(--primary-color); border-color: var(--primary-color); }
-        #editor-login-container { position: relative; }
-        #editor-login-logo { width: 36px; height: 36px; cursor: pointer; color: var(--text-color-light); transition: color 0.2s; }
-        #editor-login-logo:hover { color: var(--primary-color); }
-        #editor-profile-card { background: var(--primary-lightest); border: 1px solid var(--primary-color); border-radius: var(--border-radius); padding: 10px 15px; font-size: 14px; text-align: left; display: flex; align-items: center; gap: 15px; }
-        .profile-info strong { display: block; color: var(--primary-color); font-size: 15px; }
-        .profile-info span { color: var(--text-color); }
-        .profile-backend-link { font-size: 12px; margin-top: 5px; word-break: break-all; }
-        .profile-backend-link a { color: var(--primary-darker); }
         #admin-panel { background-color: var(--warning-bg); border: 2px solid var(--secondary-color); border-radius: var(--border-radius); padding: 15px 20px; margin: -10px auto 20px auto; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; font-weight: 500; }
         #admin-panel-info { font-size: 1.1em; color: var(--secondary-darker); }
         .card { background-color: var(--surface-color); border-radius: var(--border-radius); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); padding: 25px; margin-bottom: 25px; border: 1px solid var(--border-color); }
@@ -134,7 +166,7 @@
         .demo-quiz-meta { padding: 0 15px 15px; font-size: 0.8em; color: var(--text-color-light); display: flex; gap: 10px; }
         .demo-badge { background: var(--secondary-color); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75em; font-weight: bold; }
         .seo-hidden-data, .seo-keywords { display: none; } 
-        .demo-share-btn { position: absolute; top: 10px; right: 10px; background: white; border: 1px solid var(--border-color); width: 35px; height: 35px; border-radius: 50%; display:flex; align-items:center; justify-content:center; cursor: pointer; color: var(--primary-color); font-size: 18px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: all 0.2s; z-index: 5;}
+        .demo-share-btn { position: absolute; top: 10px; right: 10px; background: var(--surface-color); border: 1px solid var(--border-color); width: 35px; height: 35px; border-radius: 50%; display:flex; align-items:center; justify-content:center; cursor: pointer; color: var(--primary-color); font-size: 18px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: all 0.2s; z-index: 5;}
         .demo-share-btn:hover { background: var(--primary-color); color: white; transform: scale(1.1); }
 
         #dashboard-content, #search-results { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
@@ -142,7 +174,7 @@
         .breadcrumb-trail a { color: var(--primary-color); text-decoration: none; font-weight: 500; }
         .breadcrumb-trail a:hover { text-decoration: underline; }
         .breadcrumb-trail span { margin: 0 8px; }
-        .dashboard-item { background: var(--surface-color); border-radius: var(--border-radius); box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: transform 0.2s, box-shadow 0.2s; position: relative; display: flex; flex-direction: column; overflow: visible; border: 1px solid var(--border-color);}
+        .dashboard-item { background: var(--surface-color); border-radius: var(--border-radius); box-shadow: 0 2px 8px rgba(0,0,0,0.05); transition: transform 0.2s, box-shadow 0.2s; position: relative; display: flex; flex-direction: column; overflow: visible; border: 1px solid var(--border-color); }
         .dashboard-item:hover { transform: translateY(-4px); box-shadow: 0 6px 16px rgba(0,0,0,0.1); border-color: var(--primary-color); }
         .card-content { padding: 20px; cursor: pointer; flex: 1; overflow: hidden; }
         .card-icon { font-size: 3em; margin-bottom: 10px; line-height: 1; }
@@ -163,10 +195,10 @@
         .share-btn:hover { background: var(--background-color); color: var(--primary-color); }
         
         .search-container { position: relative; margin-bottom: 30px; }
-        #search-input { width: 100%; padding: 15px; font-size: 1.2rem; border-radius: var(--border-radius); border: 2px solid var(--border-color); }
+        #search-input { width: 100%; padding: 15px; font-size: 1.2rem; border-radius: var(--border-radius); border: 2px solid var(--border-color); background-color: var(--surface-color); color: var(--text-color); }
         #search-input:focus { border-color: var(--primary-color); outline: none; }
-        #search-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 var(--border-radius) var(--border-radius); z-index: 10; max-height: 300px; overflow-y: auto; }
-        .suggestion-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid var(--border-color); }
+        #search-suggestions { position: absolute; top: 100%; left: 0; right: 0; background: var(--surface-color); border: 1px solid var(--border-color); border-top: none; border-radius: 0 0 var(--border-radius) var(--border-radius); z-index: 10; max-height: 300px; overflow-y: auto; }
+        .suggestion-item { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid var(--border-color); color: var(--text-color); }
         .suggestion-item:last-child { border-bottom: none; }
         .suggestion-item:hover { background-color: var(--primary-lightest); }
         .suggestion-item strong { color: var(--primary-color); }
@@ -182,7 +214,7 @@
         #quiz-builder-header { display: flex; justify-content: space-between; align-items: center; }
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; font-weight: 600; margin-bottom: 8px; }
-        .form-group input[type="text"], .form-group input[type="password"], .form-group input[type="number"], .form-group input[type="file"], .form-group input[type="date"], .form-group input[type="time"], .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 4px; box-sizing: border-box; transition: border-color 0.2s; font-family: inherit; font-size: 1rem; background-color: var(--surface-color);}
+        .form-group input[type="text"], .form-group input[type="password"], .form-group input[type="number"], .form-group input[type="file"], .form-group input[type="date"], .form-group input[type="time"], .form-group select, .form-group textarea { width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 4px; box-sizing: border-box; transition: border-color 0.2s; font-family: inherit; font-size: 1rem; background-color: var(--surface-color); color: var(--text-color); }
         .form-group textarea { resize: vertical; }
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary-color); }
         #title-unique-status { font-size: 0.85em; margin-top: 5px; font-weight: 600; }
@@ -192,6 +224,7 @@
         .actions { text-align: center; margin-top: 20px; }
         .question-card { position: relative; }
         .delete-question-btn { position: absolute; top: 10px; right: 10px; background: var(--danger-color); color: white; border: none; border-radius: 50%; width: 30px; height: 30px; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 2; }
+        .question-card label { display: block; font-weight: 600; margin-bottom: 8px; }
         .question-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
         .toggle-switch-container { display: flex; gap: 15px; flex-wrap: wrap; }
         .toggle-switch { display: flex; align-items: center; gap: 8px; font-size: 14px; }
@@ -209,7 +242,7 @@
         .option-item input[type="radio"] { width: auto; align-self: flex-start; margin-top: 12px;}
         .option-item .rte-container { flex: 1; }
         .delete-option-btn { background-color: var(--danger-color); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 14px; }
-        .sub-question-card { background-color: #ECEFF1; margin-top: 15px; padding: 15px; position: relative; border-radius: var(--border-radius); border: 1px solid var(--border-color); }
+        .sub-question-card { background-color: var(--background-color); margin-top: 15px; padding: 15px; position: relative; border-radius: var(--border-radius); border: 1px solid var(--border-color); }
         .delete-sub-question-btn { position: absolute; top: 10px; right: 10px; background: var(--danger-color); color: white; border: none; border-radius: 50%; width: 25px; height: 25px; font-size: 16px; cursor: pointer; }
         #backend-connection-status { margin-top: 10px; font-weight: bold; }
         .status-success { color: var(--success-color); }
@@ -217,16 +250,16 @@
         .status-processing { color: var(--secondary-color); }
         .rte-container { border: 1px solid var(--border-color); border-radius: 4px; overflow: hidden; }
         .rte-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 5px; background-color: var(--background-color); border-bottom: 1px solid var(--border-color); }
-        .rte-toolbar button, .rte-toolbar select { font-family: inherit; border: 1px solid transparent; background-color: transparent; border-radius: 3px; padding: 5px; cursor: pointer; min-width: 30px; }
+        .rte-toolbar button, .rte-toolbar select { font-family: inherit; border: 1px solid transparent; background-color: transparent; border-radius: 3px; padding: 5px; cursor: pointer; min-width: 30px; color: var(--text-color); }
         .rte-toolbar button:hover, .rte-toolbar select:hover { background-color: #CFD8DC; border-color: var(--border-color); }
-        .rte-toolbar select { padding: 4px 2px; }
+        .rte-toolbar select { padding: 4px 2px; background-color: var(--surface-color); }
         .rte-toolbar input[type="color"] { width: 30px; height: 26px; padding: 2px; border: 1px solid var(--border-color); background: white; cursor: pointer; }
         .rte-toolbar .rte-separator { width: 1px; height: 20px; background-color: #B0BEC5; margin: 0 5px; }
-        .rte-content { min-height: 80px; padding: 10px; outline: none; background-color: white; font-size: 1rem; }
+        .rte-content { min-height: 80px; padding: 10px; outline: none; background-color: var(--surface-color); color: var(--text-color); font-size: 1rem; }
         .option-item .rte-content { min-height: 40px; }
-        #special-char-popup { position: fixed; z-index: 10005; background: white; border: 1px solid #ccc; box-shadow: 0 2px 10px rgba(0,0,0,0.2); border-radius: 6px; padding: 10px; display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; }
+        #special-char-popup { position: fixed; z-index: 10005; background: var(--surface-color); border: 1px solid #ccc; box-shadow: 0 2px 10px rgba(0,0,0,0.2); border-radius: 6px; padding: 10px; display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; }
         
-        #ad-side-panel { margin-bottom: 20px; padding: 0; background: #fff; border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: block; position: relative; text-align: center; }
+        #ad-side-panel { margin-bottom: 20px; padding: 0; background: var(--surface-color); border: 1px solid var(--border-color); border-radius: 6px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: block; position: relative; text-align: center; }
         .ad-label { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.1); color: var(--text-color-light); font-size: 10px; padding: 2px 6px; border-radius: 3px; z-index: 10; text-transform: uppercase; font-weight: bold; pointer-events: none; }
         #adsterra-ad-container { width: 100%; display: flex; align-items: center; justify-content: center; padding: 10px 0; min-height: 50px; }
         
@@ -234,29 +267,29 @@
         #pre-quiz-questions-list { list-style-type: none; padding: 0; margin-top: 15px; }
         .pre-quiz-list-item { background: var(--background-color); border-radius: 4px; padding: 10px 15px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 15px;}
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 10001; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .modal-card { background: white; padding: 25px; border-radius: var(--border-radius); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); max-width: 500px; width: 100%; }
+        .modal-card { background: var(--surface-color); padding: 25px; border-radius: var(--border-radius); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); max-width: 500px; width: 100%; color: var(--text-color); }
         .modal-card h2 { text-align: center; color: var(--primary-color); margin-top: 0; margin-bottom: 20px; }
         .modal-actions { text-align: right; margin-top: 20px; }
         #popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-        .popup-card { background: white; padding: 25px; border-radius: var(--border-radius); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); max-width: 800px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; }
+        .popup-card { background: var(--surface-color); padding: 25px; border-radius: var(--border-radius); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3); max-width: 800px; width: 100%; max-height: 90vh; display: flex; flex-direction: column; color: var(--text-color); }
         #terms-content-viewer { flex: 1; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 4px; margin-bottom: 20px; padding: 10px; background: var(--background-color); }
         #move-folder-list { list-style-type: none; padding: 0; margin: 0; max-height: 300px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 4px; }
         #move-folder-list li { padding: 12px 15px; cursor: pointer; border-bottom: 1px solid var(--border-color); }
         #move-folder-list li:hover { background-color: var(--primary-lightest); }
         #move-folder-list li.selected { background-color: var(--primary-color); color: white; font-weight: bold; }
-        #student-loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 20000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #student-loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--surface-color); z-index: 20000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         #student-loading.hidden { display: none; }
         .loader { border: 5px solid #f3f3f3; border-radius: 50%; border-top: 5px solid var(--primary-color); width: 50px; height: 50px; -webkit-animation: spin 1s linear infinite; animation: spin 1s linear infinite; margin-bottom: 20px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .spreadsheet-container { overflow-x: auto; margin-bottom: 15px; border: 1px solid var(--border-color); max-height: 400px; } .spreadsheet-table { border-collapse: collapse; width: 100%; min-width: 800px; font-size: 13px; } .spreadsheet-table th, .spreadsheet-table td { border: 1px solid #ddd; padding: 0; min-width: 100px; position: relative; } .spreadsheet-table th { background: #ECEFF1; padding: 10px; text-align: left; font-weight: 600; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #B0BEC5; } .spreadsheet-cell { width: 100%; height: 100%; min-height: 30px; padding: 8px; outline: none; white-space: pre-wrap; overflow: hidden; display: block; } 
+        .spreadsheet-container { overflow-x: auto; margin-bottom: 15px; border: 1px solid var(--border-color); max-height: 400px; } .spreadsheet-table { border-collapse: collapse; width: 100%; min-width: 800px; font-size: 13px; } .spreadsheet-table th, .spreadsheet-table td { border: 1px solid var(--border-color); padding: 0; min-width: 100px; position: relative; } .spreadsheet-table th { background: #ECEFF1; color: #37474F; padding: 10px; text-align: left; font-weight: 600; position: sticky; top: 0; z-index: 10; border-bottom: 2px solid #B0BEC5; } .spreadsheet-cell { width: 100%; height: 100%; min-height: 30px; padding: 8px; outline: none; white-space: pre-wrap; overflow: hidden; display: block; background: var(--surface-color); color: var(--text-color); } 
         .spreadsheet-row-selected { background-color: var(--warning-bg) !important; }
         .spreadsheet-row-selected td { background-color: var(--warning-bg) !important; }
         .explanation-section { margin-top: 20px; background: var(--success-light); padding: 15px; border-radius: 8px; border: 1px solid #A5D6A7; } 
-        .result-explanation { background: var(--primary-lightest); border: 1px solid #80CBC4; padding: 15px; margin-top: 15px; border-radius: 6px; color: var(--primary-darker); }
+        .result-explanation { background: var(--primary-lightest); border: 1px solid #80CBC4; padding: 15px; margin-top: 15px; border-radius: 6px; color: var(--text-color); }
         .popup-card h2 { text-align: center; color: var(--primary-color); margin-top: 0; margin-bottom: 20px; } #terms-content-viewer iframe, #terms-content-viewer img { width: 100%; height: 100%; min-height: 300px; border: none; } #terms-agreement-section { margin-bottom: 20px; } .terms-checkbox { display: block; margin-bottom: 10px; font-size: 15px; cursor: pointer; } .terms-checkbox input { margin-right: 10px; transform: scale(1.2); vertical-align: middle; } .terms-checkbox.mandatory { margin-top: 15px; font-size: 16px; } #student-info-form-container { max-height: 50vh; overflow-y: auto; padding-right: 10px; } #quiz-start-countdown { text-align:center; font-size: 1.2em; font-weight: 600; color: var(--primary-color); margin: 20px 0; }
         #exit-message-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 30000; display: flex; align-items: center; justify-content: center; text-align: center; color: white; font-size: 1.5em; }
         
-        /* Styles for the Quiz Player page (retaining original look as requested) */
+        /* Layout Configurations for full screen quiz viewer operations */
         #quiz-play-fullscreen { display: none; position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); z-index: 9999; overflow-y: auto; padding: 0; }
         .quiz-fullscreen-header { background: rgba(255, 255, 255, 0.98); padding: 10px 0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--primary-color); }
         .quiz-header-inner { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
@@ -264,36 +297,36 @@
         .quiz-title-section { display: flex; align-items: center; gap: 15px; }
         #player-quiz-logo { height: 40px; width: auto; max-width: 150px; object-fit: contain; }
         .quiz-title-text-group { display: flex; flex-direction: column; }
-        .quiz-title-text-group h3 { margin: 0; color: var(--text-color-light); font-size: 0.9em; font-weight: 600; text-transform: uppercase; } 
+        .quiz-title-text-group h3 { margin: 0; color: #78909C; font-size: 0.9em; font-weight: 600; text-transform: uppercase; } 
         .quiz-title-text-group h2 { color: var(--primary-color); margin: 2px 0; font-size: clamp(1em, 2vw, 1.3em); font-weight: 700; } 
-        .quiz-title-text-group p { margin: 0; color: var(--text-color); font-size: 0.85em; font-style: italic; } 
+        .quiz-title-text-group p { margin: 0; color: #37474F; font-size: 0.85em; font-style: italic; } 
         .exit-quiz-btn { background: var(--danger-color); color: white; border: none; padding: 6px 14px; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
         .exit-quiz-btn:hover { background: #B71C1C; transform: scale(1.05); }
         .quiz-play-content { max-width: 1200px; margin: 0 auto; padding: 20px 15px; }
-        .quiz-play-container { display: flex; gap: 20px; background: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12); }
+        .quiz-play-container { display: flex; gap: 20px; background: white; border-radius: 10px; padding: 20px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12); color: #37474F; }
         .play-left { flex: 1; min-width: 0; }
         .play-right { width: 320px; flex: 0 0 320px; border-left: 2px solid #e3e3e3; padding-left: 16px; }
         .play-question-text { font-size: clamp(17px, 2vw, 20px); font-weight: 400; margin-bottom: 20px; color: #2c3e50; line-height: 1.5; }
         .play-actions { display: flex; gap: 8px; margin-top: 20px; flex-wrap: nowrap; justify-content: space-between; }
         .play-actions .btn { flex: 1; padding: 10px 5px; font-size: 14px; min-width: 0; white-space: nowrap; }
         .play-nav-buttons { display: flex; gap: 8px; flex: 2; }
-        #quiz-timer { font-size: clamp(0.85em, 1.5vw, 1em); font-weight: 600; color: var(--primary-color); text-align: right; margin-top: 5px; } .question-panel-header { font-weight: 700; font-size: 16px; margin-bottom: 12px; color: var(--primary-color); } .question-panel { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; } .q-chip { width: 38px; height: 38px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid #ccc; user-select: none; font-weight: 600; font-size: 14px; transition: all 0.2s; } .q-chip.green { background: #d4edda; color: #155724; border-color: #8fd28f; } .q-chip.red { background: #f8d7da; color: #721c24; border-color: #f5c6cb; } .q-chip.yellow { background: #fff3cd; color: #856404; border-color: #ffeaa7; } .q-chip.active { outline: 3px solid var(--primary-color); outline-offset: 2px; } .legend { margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 6px; } .legend-title { font-weight: 600; margin-bottom: 8px; font-size: 13px; } .legend-item { display: block; margin-bottom: 6px; font-size: 12px; } .legend-item.green:before { color: #28a745; } .legend-item.red:before { color: #dc3545; } .legend-item.yellow:before { color: #ffc107; } .play-question-view { background: white; padding: 0; } .play-question-number { font-size: clamp(16px, 1.8vw, 18px); font-weight: 700; color: var(--primary-color); margin-bottom: 15px; } .play-question-image { max-width: 100%; max-height: 400px; margin: 15px auto; border-radius: 8px; display: block; object-fit: contain; } .play-passage-section { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid var(--primary-color); } .play-passage-label { font-size: 12px; font-weight: 600; color: #666; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; } .play-options-container { margin: 15px 0; } .play-option { padding: clamp(10px, 1.8vw, 14px); border: 2px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; background: white; font-size: clamp(14px, 1.6vw, 15px); display: flex; align-items: flex-start; gap: 10px; } .play-option:hover:not(.disabled) { border-color: var(--primary-color); background: var(--primary-lightest); transform: translateX(5px); } .play-option.selected { border-color: var(--primary-color); background: var(--primary-lightest); font-weight: 600; } .play-option.disabled { opacity: 0.7; cursor: not-allowed; } .option-label { font-weight: 700; color: var(--primary-color); min-width: 20px; padding-top: 2px;} .option-text { flex: 1; } .submit-inside-card { margin-top: 25px; padding-top: 20px; border-top: 2px solid #e3e3e3; text-align: center; } .submit-inside-card .btn { font-size: 16px; padding: 12px 40px; }
-        .results-container { background: white; border-radius: 10px; padding: 30px; max-width: 900px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        #quiz-timer { font-size: clamp(0.85em, 1.5vw, 1em); font-weight: 600; color: var(--primary-color); text-align: right; margin-top: 5px; } .question-panel-header { font-weight: 700; font-size: 16px; margin-bottom: 12px; color: var(--primary-color); } .question-panel { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; } .q-chip { width: 38px; height: 38px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid #ccc; user-select: none; font-weight: 600; font-size: 14px; transition: all 0.2s; } .q-chip.green { background: #d4edda; color: #155724; border-color: #8fd28f; } .q-chip.red { background: #f8d7da; color: #721c24; border-color: #f5c6cb; } .q-chip.yellow { background: #fff3cd; color: #856404; border-color: #ffeaa7; } .q-chip.active { outline: 3px solid var(--primary-color); outline-offset: 2px; } .legend { margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 6px; } .legend-title { font-weight: 600; margin-bottom: 8px; font-size: 13px; } .legend-item { display: block; margin-bottom: 6px; font-size: 12px; } .legend-item.green:before { color: #28a745; } .legend-item.red:before { color: #dc3545; } .legend-item.yellow:before { color: #ffc107; } .play-question-view { background: white; padding: 0; } .play-question-number { font-size: clamp(16px, 1.8vw, 18px); font-weight: 700; color: var(--primary-color); margin-bottom: 15px; } .play-question-image { max-width: 100%; max-height: 400px; margin: 15px auto; border-radius: 8px; display: block; object-fit: contain; } .play-passage-section { background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid var(--primary-color); } .play-passage-label { font-size: 12px; font-weight: 600; color: #666; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; } .play-options-container { margin: 15px 0; } .play-option { padding: clamp(10px, 1.8vw, 14px); border: 2px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; background: white; font-size: clamp(14px, 1.6vw, 15px); display: flex; align-items: flex-start; gap: 10px; } .play-option:hover:not(.disabled) { border-color: var(--primary-color); background: #EBF9EB; transform: translateX(5px); } .play-option.selected { border-color: var(--primary-color); background: #EBF9EB; font-weight: 600; } .play-option.disabled { opacity: 0.7; cursor: not-allowed; } .option-label { font-weight: 700; color: var(--primary-color); min-width: 20px; padding-top: 2px;} .option-text { flex: 1; } .submit-inside-card { margin-top: 25px; padding-top: 20px; border-top: 2px solid #e3e3e3; text-align: center; } .submit-inside-card .btn { font-size: 16px; padding: 12px 40px; }
+        .results-container { background: white; border-radius: 10px; padding: 30px; max-width: 900px; margin: 20px auto; box-shadow: 0 4px 20px rgba(0,0,0,0.1); color: #37474F; }
         .results-header { text-align: center; border-bottom: 3px solid var(--primary-color); padding-bottom: 20px; margin-bottom: 30px; }
         .results-header h1 { color: var(--primary-color); margin: 0 0 10px 0; font-size: 2.5em; }
-        .quiz-info, .student-info-results { background: var(--background-color); padding: 20px; border-radius: 8px; margin-bottom: 25px; }
+        .quiz-info, .student-info-results { background: #EBF9EB; padding: 20px; border-radius: 8px; margin-bottom: 25px; }
         .quiz-info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 16px; }
-        .quiz-info-label { font-weight: 600; color: var(--text-color-light); }
+        .quiz-info-label { font-weight: 600; color: #78909C; }
         .score-summary { text-align: center; padding: 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px; margin-bottom: 30px; }
         .score-summary .big-score { font-size: 4em; font-weight: bold; margin: 15px 0; }
         .score-summary .percentage { font-size: 2em; margin: 10px 0; }
         .detailed-results, .student-info-results { margin-top: 30px; }
         .detailed-results h2, .student-info-results h2 { color: var(--primary-color); border-bottom: 2px solid #e3e3e3; padding-bottom: 10px; margin-bottom: 20px; }
-        .result-question { background: var(--background-color); border-left: 5px solid var(--primary-color); padding: 20px; margin-bottom: 20px; border-radius: 8px; page-break-inside: avoid; }
+        .result-question { background: #EBF9EB; border-left: 5px solid var(--primary-color); padding: 20px; margin-bottom: 20px; border-radius: 8px; page-break-inside: avoid; }
         .result-question-header { font-weight: 700; font-size: 18px; color: var(--primary-color); margin-bottom: 12px; }
         .result-question-text { font-size: 16px; font-weight: 400; margin-bottom: 15px; color: #2c3e50; }
         .result-question-image { max-width: 100%; max-height: 300px; margin: 15px 0; border-radius: 8px; }
-        .result-passage { background: var(--primary-lightest); padding: 15px; border-radius: 6px; margin-bottom: 15px; border-left: 4px solid var(--primary-color); }
+        .result-passage { background: #EBF9EB; padding: 15px; border-radius: 6px; margin-bottom: 15px; border-left: 4px solid var(--primary-color); }
         .result-options { margin: 15px 0; }
         .result-option { padding: 12px 15px; margin-bottom: 8px; border-radius: 6px; border: 2px solid #ddd; display: flex; align-items: flex-start; gap: 10px; }
         .result-option.correct { background: var(--success-light); border-color: var(--success-color); font-weight: 600; }
@@ -303,6 +336,14 @@
         .result-status.wrong-answer { background: var(--danger-light); color: var(--danger-color); }
         .result-status.not-answered { background: var(--warning-bg); color: var(--warning-text); }
         .print-actions { text-align: center; margin: 30px 0; }
+
+        /* Media Queries for expanded layout structures on large viewports */
+        @media (min-width: 768px) {
+            #editor-login-logo { display: none; }
+            .desktop-header-nav { display: flex; }
+            .human-dropdown-menu { display: none !important; }
+        }
+
         @media (max-width: 900px) { .quiz-play-content { padding: 10px; } .quiz-play-container { flex-direction: column; gap: 30px; } .play-left { width: 100%; border-right: none; border-bottom: 2px solid var(--border-color); padding-bottom: 20px; } .play-right { width: 100%; flex: none; border-left: none; padding-left: 0; } .question-panel { justify-content: center; } #ad-side-panel { max-width: 100%; margin-bottom: 25px; } }
         @media print { body { background: white; padding-bottom: 0; } .bottom-nav { display: none; } .quiz-play-content { padding: 0; } .quiz-fullscreen-header, .print-actions, .exit-quiz-btn, #popup-overlay { display: none; } .results-container { box-shadow: none; max-width: 100%; page-break-after: always; } .result-question { page-break-inside: avoid; } #quiz-play-fullscreen { position: static; width: 100%; height: auto; background: white; } }
     </style>
@@ -310,24 +351,63 @@
 <body>
     <div id="student-loading" class="hidden"><div class="loader"></div><h2 id="loading-text">Loading...</h2></div>
     <div id="exit-message-overlay" class="hidden"><div>Thank you for visiting. Have a great day!<br/><small style="font-size: 0.6em;">You may now close this tab.</small></div></div>
+    
     <nav class="bottom-nav">
-        <button class="nav-btn active" id="nav-home"><span class="nav-icon">🏠</span><span>Home</span></button>
-        <button class="nav-btn" id="nav-search"><span class="nav-icon">🔍</span><span>Search</span></button>
-        <button class="nav-btn" id="nav-dashboard"><span class="nav-icon">👤</span><span>My Dashboard</span></button>
-        <button class="nav-btn" id="nav-about"><span class="nav-icon">ℹ️</span><span>About</span></button>
+        <button class="nav-btn active" id="nav-home">Home</button>
+        <button class="nav-btn" id="nav-search">Search</button>
+        <button class="nav-btn" id="nav-dashboard">My Dashboard</button>
+        <button class="nav-btn" id="nav-refresh-page">Refresh</button>
     </nav>
+    
     <button id="admin-about-fab" class="fab-btn hidden">+</button>
     <div id="admin-about-menu" class="fab-menu hidden"><button class="fab-menu-btn" id="fab-create-btn">Create Button</button><button class="fab-menu-btn" id="fab-upload-file">Upload File</button></div>
     <div id="about-modal-overlay" class="modal-overlay hidden"><div id="create-btn-modal" class="modal-card hidden"><h2>Create Link Button</h2><div class="form-group"><label>Button Name</label><input type="text" id="abt-btn-name"></div><div class="form-group"><label>URL</label><input type="text" id="abt-btn-url" placeholder="https://..."></div><div class="modal-actions"><button class="btn btn-secondary close-abt-modal">Cancel</button><button class="btn btn-success" id="save-abt-btn">Done</button></div></div><div id="upload-file-modal" class="modal-card hidden"><h2>Upload File</h2><div class="form-group"><label>File Title</label><input type="text" id="abt-file-title"></div><div class="form-group"><label>Select File (Max 2MB)</label><input type="file" id="abt-file-input"></div><div class="modal-actions"><button class="btn btn-secondary close-abt-modal">Cancel</button><button class="btn btn-success" id="save-abt-file">Save</button></div></div></div>
+    
     <header>
         <div class="header-content-wrapper">
             <div class="logo-container">
                 <svg class="app-logo" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
                 <h1 id="app-title">Quiz Test Maker</h1>
             </div>
-            <div id="editor-login-container"><svg id="editor-login-logo" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg><div id="editor-profile-card" class="hidden"><div class="profile-info"><strong id="profile-username"></strong><span id="profile-gmail"></span><div id="profile-backend-details" class="profile-backend-link"></div></div><button id="editor-logout-btn" class="btn btn-danger" style="padding: 5px 10px; font-size: 12px;">Logout</button></div></div>
+            
+            <div class="desktop-header-nav">
+                <button class="desktop-nav-link active" id="dk-nav-home">Home</button>
+                <button class="desktop-nav-link" id="dk-nav-search">Search</button>
+                <button class="desktop-nav-link" id="dk-nav-dashboard">My Dashboard</button>
+                <button class="desktop-nav-link" id="dk-nav-about">About</button>
+                <button class="desktop-nav-link" id="dk-nav-create-acc">Create Account</button>
+                <button class="desktop-nav-link" id="dk-nav-login">Login</button>
+                <button class="desktop-nav-link hidden" id="dk-nav-view-profile">View Profile</button>
+                <button class="desktop-nav-link" id="dk-nav-theme-toggle">Dark Mode</button>
+            </div>
+
+            <div id="editor-login-container">
+                <svg id="editor-login-logo" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                
+                <div id="human-dropdown-menu" class="human-dropdown-menu">
+                    <div id="editor-profile-card" class="hidden">
+                        <div class="profile-info">
+                            <strong id="profile-username"></strong>
+                            <span id="profile-gmail"></span>
+                            <div id="profile-backend-details" class="profile-backend-link"></div>
+                        </div>
+                        <button id="editor-logout-btn" class="btn btn-danger" style="padding: 5px 10px; font-size: 12px; margin: 0; width: 100%;">Logout</button>
+                    </div>
+                    
+                    <button class="dropdown-opt-btn" id="menu-opt-create-acc">Create New Account</button>
+                    <button class="dropdown-opt-btn" id="menu-opt-login">Login to Existing Account</button>
+                    <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 4px 0;">
+                    <button class="dropdown-opt-btn" id="menu-opt-home">Home</button>
+                    <button class="dropdown-opt-btn" id="menu-opt-search">Search</button>
+                    <button class="dropdown-opt-btn" id="menu-opt-dashboard">My Dashboard</button>
+                    <button class="dropdown-opt-btn" id="menu-opt-about">About</button>
+                    <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 4px 0;">
+                    <button class="dropdown-opt-btn" id="menu-opt-theme-toggle"><span>Toggle Night Mode</span></button>
+                </div>
+            </div>
         </div>
     </header>
+    
     <div id="admin-panel" class="hidden"><div id="admin-panel-info">👑 Admin Mode</div></div>
     <div id="action-modal-overlay" class="modal-overlay hidden">
         <div id="editor-login-choice-modal" class="modal-card hidden"><h2>Editor Access</h2><div class="actions" style="display: flex; justify-content: center; gap: 10px;"><button id="show-create-account-btn" class="btn btn-primary">Create New Account</button><button id="show-otp-login-btn" class="btn btn-success">Login with OTP</button></div></div>
@@ -341,6 +421,13 @@
             <div id="item-options-actions"></div>
             <div class="modal-actions">
                 <button id="item-options-cancel" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+        <div id="view-profile-details-modal" class="modal-card hidden">
+            <h2>Account Session Profile</h2>
+            <div id="modal-profile-info-payload" style="margin-bottom: 20px; line-height: 1.8;"></div>
+            <div class="modal-actions">
+                <button id="close-profile-modal-btn" class="btn btn-secondary">Close</button>
             </div>
         </div>
     </div>
@@ -480,7 +567,7 @@
     </div>
 
     <div class="container hidden" id="quiz-builder">
-        <header id="quiz-builder-header">
+        <header id="quiz-builder-header" style="position: static; padding: 0; box-shadow: none; border: none; border-radius: 0;">
             <button id="back-to-dashboard-btn" class="btn btn-secondary">← Back to Dashboard</button>
             <h1 id="builder-title">Create New Quiz</h1>
             <span></span>
@@ -545,7 +632,6 @@
             <div class="form-group"><label for="quiz-terms">Upload Terms & Conditions (PDF/Image)</label><input type="file" id="quiz-terms" accept=".pdf,image/jpeg,image/png"><span id="terms-file-name" style="font-size: 12px; color: var(--text-color-light); margin-top: 5px; display: block;"></span></div>
             <hr style="border:0; border-top: 1px solid var(--border-color)">
 
-            <!-- SHUFFLING FEATURE TOGGLE ADDED HERE -->
             <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
                 <label style="margin-bottom: 0;" title="Shuffle question and option sequence for the students">Questions and Options Shuffling</label>
                 <label class="switch"><input type="checkbox" id="shuffle-toggle"><span class="slider"></span></label>
@@ -576,7 +662,7 @@
             
             <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;"><label style="margin-bottom: 0;">Backend Collection (With Fixed Date)</label><label class="switch"><input type="checkbox" id="backend-toggle"><span class="slider"></span></label></div>
             <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;"><label style="margin-bottom: 0;">Backend Collection (Without Fixed Date)</label><label class="switch"><input type="checkbox" id="backend-independent-toggle"><span class="slider"></span></label></div>
-            <div id="backend-details-container" class="hidden"><div class="form-group"><label for="backend-url">Quiz Data Script URL</label><input type="text" id="backend-url" placeholder="https://script.google.com/macros/s/..."><p style="font-size:12px; color:var(--text-color-light);">Note: This is the URL for the quiz data backend. (Leave empty if using Free Tier)</p><button id="test-backend-btn" class="btn btn-secondary">Test Connection</button><div id="backend-connection-status"></div></div></div>
+            <div id="backend-details-container" class="hidden"><div class="form-group"><label for="backend-url">Quiz Data Script URL</label><input type="text" id="backend-url" placeholder="https://script.google.com/macros/s/..." readonly><p style="font-size:12px; color:var(--text-color-light);">Note: Loaded securely from authenticated profile data.</p><button id="test-backend-btn" class="btn btn-secondary">Test Connection</button><div id="backend-connection-status"></div></div></div>
             <hr style="border:0; border-top: 1px solid var(--border-color)">
             <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;"><label style="margin-bottom: 0;">Collect Candidate Information</label><label class="switch"><input type="checkbox" id="collect-info-toggle"><span class="slider"></span></label></div>
             <div id="pre-quiz-questions-section" class="hidden"><button id="add-pre-question-btn" class="btn btn-primary">➕ Add Question</button><ul id="pre-quiz-questions-list"></ul></div>
@@ -638,7 +724,7 @@
     <div id="special-char-popup" class="hidden"></div>
 
     <script>
-    const ADMIN_BACKEND_URL = 'https://script.google.com/macros/s/AKfycbwbpVhXxL17a2U9S56ri8PdoWvo1frtDKfBljSucTqrLci8kUCZDzQTk8SZlq5H6xoX/exec'; 
+    const ADMIN_BACKEND_URL = 'https://script.google.com/macros/s/AKfycbwOUNYl8bwGj7xKiZmteJu02qRuMIP-I9AUcaxBDV0bVDJJJ8V-rad8GsAgBenH5OD5rQ/exec'; 
     let activeQuizPlayer = null; 
 
     function getQueryParams() { return new URLSearchParams(window.location.search); }
@@ -666,7 +752,6 @@
         let countdownInterval, adRefreshInterval, timeRemaining;
         let cheatCount = 0; let isRefreshing = false; let kioskCleanupFunctions = [];
         
-        // === SHUFFLING LOGIC CORE INITIALIZATION ===
         let originalQuestions = JSON.parse(JSON.stringify(QUIZ_DATA.questions));
         if (QUIZ_DATA.shuffleQuestions) {
             const shuffleArray = (array) => {
@@ -737,7 +822,7 @@
             let lastViolationTime = 0;
             const handleKioskViolation = () => {
                 const now = Date.now();
-                if (now - lastViolationTime < 2000) return; // Prevent double trigger
+                if (now - lastViolationTime < 2000) return; 
                 lastViolationTime = now;
                 cheatCount++;
                 playState.questions[playState.index].locked = true;
@@ -756,12 +841,10 @@
                 if (isRefreshing || !playState.isQuizActive) return;
                 if (document.hidden) handleKioskViolation();
             });
-            // Covers split screen, floating windows, alt-tab, OS level gestures (3/4 finger swipe up)
             addKioskListener(window, "blur", () => {
                 if (isRefreshing || !playState.isQuizActive) return;
                 handleKioskViolation();
             });
-            // Block trackpad pinch-to-zoom / scroll zooming
             addKioskListener(document, "wheel", (e) => {
                 if (e.ctrlKey) e.preventDefault(); 
             }, { passive: false });
@@ -829,7 +912,6 @@
                 q.userCorrect = isCorrect; 
             });
 
-            // === RESTORE ORIGINAL QUESTIONS/OPTIONS BEFORE SUBMITTING TO BACKEND/SHOWING RESULTS ===
             if (playState.shuffleQuestions) {
                 playState.questions.forEach(shuffledQ => {
                     const origQ = originalQuestions[shuffledQ.originalQuestionIndex];
@@ -843,7 +925,7 @@
                         origQ.selectedOption = null;
                     }
                 });
-                playState.questions = originalQuestions; // Magic restoration!
+                playState.questions = originalQuestions; 
             }
 
             if (playState.backendUrl && playState.backendSheetId && (playState.scheduledDateTime || playState.isIndependentBackend)) { 
@@ -861,11 +943,10 @@
             
             if (playState.hideResults) { const successHTML = `<div class="results-container" style="text-align: center; padding: 50px 20px;"><div style="font-size: 60px; margin-bottom: 20px;">✅</div><h1 style="color: var(--primary-color);">Test Submitted Successfully</h1><p style="font-size: 1.1em; color: #555; max-width: 600px; margin: 0 auto 30px;">Thank you for completing the test. Your responses have been recorded.</p><div class="print-actions"><button id="btn-success-back" class="btn btn-primary">← Back to Menu</button></div></div>`; document.querySelector('.quiz-play-content').innerHTML = successHTML; const sBack = document.getElementById('btn-success-back'); if(sBack) sBack.addEventListener('click', () => history.back()); return; }
 
-            const cheatingWarningHTML = (playState.isKioskMode && cheatCount >= 3) ? '<div style="background-color: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #f5c6cb;"><strong>Warning:</strong> This quiz was automatically submitted because the focus/tab-switching limit was reached. Locked questions were not scored.</div>' : '';
             const percentage = totalQuestions > 0 ? ((score / totalQuestions) * 100).toFixed(1) : 0; let studentInfoHTML = ''; if (playState.studentInfo && Object.keys(playState.studentInfo).length > 0) { studentInfoHTML = `<div class="student-info-results"><h2>Candidate Information</h2>`; Object.entries(playState.studentInfo).forEach(([key, value]) => { studentInfoHTML += `<div class="quiz-info-row"><span class="quiz-info-label">${key}:</span><span>${value}</span></div>`; }); studentInfoHTML += `</div>`; } let questionsResultHTML = ''; playState.questions.forEach((q) => { let questionHTML = `<div class="result-question">`; if (q.passageData && q.passageData.content) { questionHTML += `<div class="result-passage"><strong>Passage/Context:</strong><br>${q.passageData.type === 'image' ? `<img src="${q.passageData.content}" class="result-question-image" alt="Passage">` : q.passageData.content}</div>`; } questionHTML += `<div class="result-question-header">Question ${q.questionNumber}</div>`; if (q.type === 'image-mcq' && q.imageSrc) { questionHTML += `<img src="${q.imageSrc}" class="result-question-image" alt="Question">`; } else if (q.text) { questionHTML += `<div class="result-question-text">${q.text}</div>`; } if (q.type === 'short-answer') { questionHTML += `<div style="margin: 15px 0;"><p><strong>Your Answer:</strong> ${q.userAnswer || '<em>Not answered</em>'}</p><p><strong>Correct Answer:</strong> <span style="color: #28a745;">${q.answer}</span></p></div>`; } else { questionHTML += `<div class="result-options">`; q.options.forEach((opt, i) => { let optClass = i === q.correctIndex ? 'correct' : (i === q.selectedOption ? 'wrong' : ''); const optionLabel = `<strong>${q.isSubQuestion ? `${i + 1}.` : `${toLetter(i)}.`}</strong>`; let content = `<div class="result-option ${optClass}">${optionLabel} <div class="option-text">${opt}</div>`; if (i === q.selectedOption && i !== q.correctIndex) content += '<em>(Your choice)</em>'; content += `</div>`; questionHTML += content; }); questionHTML += `</div>`; } let statusClass = q.userCorrect === null ? 'not-answered' : (q.userCorrect ? 'correct-answer' : 'wrong-answer'); let statusText = q.userCorrect === null ? 'Not Answered' : (q.userCorrect ? '✓ Correct' : '✗ Incorrect'); if(playState.isKioskMode && q.locked) { statusClass = 'not-answered'; statusText = '🔒 Locked'; } questionHTML += `<div class="result-status ${statusClass}">${statusText}</div>`; if(q.explanation && q.explanation.trim() !== "") { questionHTML += `<div class="result-explanation"><strong>Explanation:</strong><br>${q.explanation}</div>`; } questionHTML += `</div>`; questionsResultHTML += questionHTML; }); 
             let actionButtons = `<button id="print-results-btn" class="btn btn-primary">🖨️ Print Results</button>`; if (!playState.scheduledDateTime) { actionButtons += `<button id="retake-quiz-btn" class="btn btn-secondary">↺ Retake Quiz</button>`; } if(document.getElementById('quiz-dashboard')) { actionButtons += `<button id="btn-back-to-menu" class="btn btn-primary">← Back to Menu</button>`; }
             if (playState.nextTestUrl && playState.nextTestTitle) { actionButtons = `<a href="${playState.nextTestUrl}" target="_blank" rel="noopener noreferrer" class="btn btn-success" style="text-decoration:none;">${playState.nextTestTitle}</a>` + actionButtons; }
-            const resultsHTML = `<div class="results-container">${cheatingWarningHTML}<div class="results-header"><h1>📊 Quiz Results</h1><p>Detailed Report</p></div>${studentInfoHTML}<div class="quiz-info"><div class="quiz-info-row"><span class="quiz-info-label">Quiz Title:</span><span>${playState.quizTitle}</span></div><div class="quiz-info-row"><span class="quiz-info-label">Total Questions:</span><span>${totalQuestions}</span></div><div class="quiz-info-row"><span class="quiz-info-label">Date:</span><span>${new Date().toLocaleDateString()}</span></div></div><div class="score-summary"><h2 style="margin: 0;">Your Score</h2><div class="big-score">${score} / ${totalQuestions}</div><div class="percentage">${percentage}%</div><p>Answered: ${answeredCount} | Not Answered: ${totalQuestions - answeredCount}</p></div><div class="detailed-results"><h2>Detailed Answer Key</h2>${questionsResultHTML}</div><div class="print-actions">${actionButtons}</div></div>`; document.querySelector('.quiz-play-content').innerHTML = resultsHTML; document.getElementById('print-results-btn').addEventListener('click', () => window.print()); if(!playState.scheduledDateTime) { document.getElementById('retake-quiz-btn').addEventListener('click', () => location.reload()); }
+            const resultsHTML = `<div class="results-container"><div class="results-header"><h1>📊 Quiz Results</h1><p>Detailed Report</p></div>${studentInfoHTML}<div class="quiz-info"><div class="quiz-info-row"><span class="quiz-info-label">Quiz Title:</span><span>${playState.quizTitle}</span></div><div class="quiz-info-row"><span class="quiz-info-label">Total Questions:</span><span>${totalQuestions}</span></div><div class="quiz-info-row"><span class="quiz-info-label">Date:</span><span>${new Date().toLocaleDateString()}</span></div></div><div class="score-summary"><h2 style="margin: 0;">Your Score</h2><div class="big-score">${score} / ${totalQuestions}</div><div class="percentage">${percentage}%</div><p>Answered: ${answeredCount} | Not Answered: ${totalQuestions - answeredCount}</p></div><div class="detailed-results"><h2>Detailed Answer Key</h2>${questionsResultHTML}</div><div class="print-actions">${actionButtons}</div></div>`; document.querySelector('.quiz-play-content').innerHTML = resultsHTML; document.getElementById('print-results-btn').addEventListener('click', () => window.print()); if(!playState.scheduledDateTime) { document.getElementById('retake-quiz-btn').addEventListener('click', () => location.reload()); }
             const backToMenuBtn = document.getElementById('btn-back-to-menu');
             if(backToMenuBtn) { backToMenuBtn.addEventListener('click', () => { history.back(); }); }
         }
@@ -921,7 +1002,7 @@
             const quizId = playState.backendSheetId || playState.quizId; const slug = generateSlug(playState.quizTitle); const url = new URL(window.location); url.searchParams.set('quiz', slug); url.searchParams.delete('id'); url.searchParams.delete('source');
             history.pushState({ quizActive: true, quizId: quizId }, "", url); activeQuizPlayer = this;
             window.quizBackListener = (e) => { 
-                if (playState.isKioskMode && playState.isQuizActive) return; // Prevent exit during active kiosk quiz
+                if (playState.isKioskMode && playState.isQuizActive) return; 
                 e.preventDefault(); closeQuizAndReturn(); showDashboard(); 
             };
             window.addEventListener('popstate', window.quizBackListener, { once: true });
@@ -949,7 +1030,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         const quizDashboard = document.getElementById('quiz-dashboard'), aboutDashboard = document.getElementById('about-dashboard'), searchPage = document.getElementById('search-page'), quizBuilder = document.getElementById('quiz-builder'), dashboardContent = document.getElementById('dashboard-content'), aboutContent = document.getElementById('about-content'), searchResultsContainer = document.getElementById('search-results'), breadcrumbTrail = document.getElementById('breadcrumb-trail'), loadingScreen = document.getElementById('student-loading');
-        const navHome = document.getElementById('nav-home'), navSearch = document.getElementById('nav-search'), navDashboard = document.getElementById('nav-dashboard'), navAbout = document.getElementById('nav-about'), dashboardControls = document.getElementById('dashboard-controls');
+        const navHome = document.getElementById('nav-home'), navSearch = document.getElementById('nav-search'), navDashboard = document.getElementById('nav-dashboard'), navRefreshPage = document.getElementById('nav-refresh-page'), dashboardControls = document.getElementById('dashboard-controls');
         const searchInput = document.getElementById('search-input'), suggestionsContainer = document.getElementById('search-suggestions');
         const adminFab = document.getElementById('admin-about-fab'), adminFabMenu = document.getElementById('admin-about-menu'), createBtnModal = document.getElementById('create-btn-modal'), uploadFileModal = document.getElementById('upload-file-modal'), aboutModalOverlay = document.getElementById('about-modal-overlay');
         const homeSeoContent = document.getElementById('home-seo-content'), dashboardSeoContent = document.getElementById('dashboard-seo-content');
@@ -961,17 +1042,92 @@
         let currentPath = [], clipboard = null, sharedData = { items: [] }, globalHomeData = { items: [] }, flatSearchIndex = [], activeTab = 'home', globalAboutItems = []; 
         const USER_TAG_SEPARATOR = "_#_";
         function getDisplayName(str) { return str ? str.split(USER_TAG_SEPARATOR)[0] : ""; }
-        const getDb = () => JSON.parse(localStorage.getItem('quizDashboardDB_v4')) || { items: [] }; const saveDb = (db) => localStorage.setItem('quizDashboardDB_v4', JSON.stringify(db));
+
+        // Core dynamic state configurations for Theme Sync Matrix mapping elements
+        function initThemeEngine() {
+            const currentTheme = localStorage.getItem('appThemeState') || 'light';
+            if (currentTheme === 'dark') {
+                document.body.classList.add('dark-mode');
+                updateThemeToggleText(true);
+            } else {
+                document.body.classList.remove('dark-mode');
+                updateThemeToggleText(false);
+            }
+        }
+        function toggleThemeState() {
+            const isDark = document.body.classList.toggle('dark-mode');
+            localStorage.setItem('appThemeState', isDark ? 'dark' : 'light');
+            updateThemeToggleText(isDark);
+        }
+        function updateThemeToggleText(isDark) {
+            const label = isDark ? "Light Mode" : "Dark Mode";
+            document.getElementById('menu-opt-theme-toggle').innerHTML = `<span>Toggle ${label}</span>`;
+            document.getElementById('dk-nav-theme-toggle').textContent = label;
+        }
+        document.getElementById('menu-opt-theme-toggle').addEventListener('click', () => { toggleThemeState(); closeHumanDropdown(); });
+        document.getElementById('dk-nav-theme-toggle').addEventListener('click', toggleThemeState);
+
+        // Human trigger icon action routers mapped to mobile layout wrappers
+        const editorLoginLogo = document.getElementById('editor-login-logo');
+        const humanDropdownMenu = document.getElementById('human-dropdown-menu');
+        
+        function toggleHumanDropdown() { humanDropdownMenu.classList.toggle('show'); }
+        function closeHumanDropdown() { humanDropdownMenu.classList.remove('show'); }
+        
+        editorLoginLogo.addEventListener('click', (e) => { e.stopPropagation(); toggleHumanDropdown(); });
+        document.addEventListener('click', (e) => { if (!e.target.closest('#editor-login-container')) closeHumanDropdown(); });
+
+        // Account management access routes inside dropdown modules
+        document.getElementById('menu-opt-create-acc').addEventListener('click', () => { closeHumanDropdown(); openCreateAccountModal(); });
+        document.getElementById('menu-opt-login').addEventListener('click', () => { closeHumanDropdown(); openLoginChoiceModal(); });
+        document.getElementById('dk-nav-create-acc').addEventListener('click', openCreateAccountModal);
+        document.getElementById('dk-nav-login').addEventListener('click', openLoginChoiceModal);
+
+        function openCreateAccountModal() { actionModal.classList.remove('hidden'); document.getElementById('editor-create-account-modal').classList.remove('hidden'); }
+        function openLoginChoiceModal() { actionModal.classList.remove('hidden'); document.getElementById('editor-login-choice-modal').classList.remove('hidden'); }
+
+        // Unified layout navigation execution pipes
+        function routeToTab(targetTab) {
+            activeTab = targetTab;
+            currentPath = [];
+            closeHumanDropdown();
+            showDashboard();
+            if (targetTab === 'home') fetchHomeData();
+            window.scrollTo(0, 0);
+        }
+
+        document.getElementById('menu-opt-home').addEventListener('click', () => { routeToTab('home'); });
+        document.getElementById('menu-opt-search').addEventListener('click', () => { routeToTab('search'); });
+        document.getElementById('menu-opt-dashboard').addEventListener('click', () => { routeToTab('dashboard'); });
+        document.getElementById('menu-opt-about').addEventListener('click', () => { routeToTab('about'); });
+
+        document.getElementById('dk-nav-home').addEventListener('click', () => { routeToTab('home'); });
+        document.getElementById('dk-nav-search').addEventListener('click', () => { routeToTab('search'); });
+        document.getElementById('dk-nav-dashboard').addEventListener('click', () => { routeToTab('dashboard'); });
+        document.getElementById('dk-nav-about').addEventListener('click', () => { routeToTab('about'); });
+
+        navRefreshPage.addEventListener('click', () => { location.reload(); });
+        
+        const getDb = () => {
+            if (!localStorage.getItem('editorProfile')) return { items: [] };
+            return JSON.parse(localStorage.getItem('quizDashboardDB_v4')) || { items: [] };
+        }; 
+        const saveDb = (db) => {
+            if (!localStorage.getItem('editorProfile')) return;
+            localStorage.setItem('quizDashboardDB_v4', JSON.stringify(db));
+        };
         
         function recordVisit() { apiCall('record_visit', {}); }
         function findItem(itemId) { let found = findItemInTree(itemId, globalHomeData); if (!found) { found = findItemInTree(itemId, sharedData); } if (!found) { found = findItemInTree(itemId, getDb()); } return found; }
-        function findItemInTree(itemId, db) { let found = null; function search(items) { if (!items) return; for (const item of items) { if (item.id === itemId || item.backendSheetId === itemId) { found = item; return; } if (item.type === 'folder' && item.items) search(item.items); } } search(db.items); return found; }
-        function findParent(itemId, db) { if (db.items.some(i => i.id === itemId)) return db; function search(currentParent) { if (!currentParent.items) return null; for (const item of currentParent.items) { if (item.type === 'folder' && item.items) { if (item.items.some(child => child.id === itemId)) { return item; } const result = search(item); if (result) return result; } } return null; } return search({ items: db.items }); }
+        function findItemInTree(itemId, db) { if (!db || !db.items) return null; let found = null; function search(items) { if (!items) return; for (const item of items) { if (item.id === itemId || item.backendSheetId === itemId) { found = item; return; } if (item.type === 'folder' && item.items) search(item.items); } } search(db.items); return found; }
+        function findParent(itemId, db) { if (!db || !db.items) return null; if (db.items.some(i => i.id === itemId)) return db; function search(currentParent) { if (!currentParent.items) return null; for (const item of currentParent.items) { if (item.type === 'folder' && item.items) { if (item.items.some(child => child.id === itemId)) { return item; } const result = search(item); if (result) return result; } } return null; } return search({ items: db.items }); }
         function flattenHomeData() { const flatList = []; function traverse(items) { if (!items) return; items.forEach(item => { flatList.push(item); if (item.type === 'folder' && item.items) { traverse(item.items); } }); } traverse(globalHomeData.items); flatSearchIndex = flatList; }
         function indexDemoQuizzes() { document.querySelectorAll('.demo-quiz-card').forEach(card => { const title = card.querySelector('.demo-quiz-title').textContent; const quizId = card.dataset.quizId; const subject = "English Grammar"; const keywordDiv = card.querySelector('.seo-keywords'); const extraKeywords = keywordDiv ? keywordDiv.textContent : ""; flatSearchIndex.push({ id: quizId, name: title + " " + extraKeywords, displayName: title, type: 'demo-quiz', subject: subject, editorUsername: 'Quiz Maker' }); }); }
 
         const quizTitleInput = document.getElementById('quiz-title'), uniqueStatus = document.getElementById('title-unique-status');
-        quizTitleInput.addEventListener('input', () => { const val = quizTitleInput.value.trim(); if(!val) { uniqueStatus.textContent = ''; return; } const slug = generateSlug(val); let exists = flatSearchIndex.some(i => generateSlug(getDisplayName(i.name)) === slug); if(exists) { uniqueStatus.textContent = '❌ Title already exists.'; uniqueStatus.className = 'status-taken'; } else { uniqueStatus.textContent = '✅ Title available!'; uniqueStatus.className = 'status-unique'; } });
+        if (quizTitleInput) {
+            quizTitleInput.addEventListener('input', () => { const val = quizTitleInput.value.trim(); if(!val) { uniqueStatus.textContent = ''; return; } const slug = generateSlug(val); let exists = flatSearchIndex.some(i => generateSlug(getDisplayName(i.name)) === slug); if(exists) { uniqueStatus.textContent = '❌ Title already exists.'; uniqueStatus.className = 'status-taken'; } else { uniqueStatus.textContent = '✅ Title available!'; uniqueStatus.className = 'status-unique'; } });
+        }
 
         async function fetchHomeData() { try { const response = await apiCall('get_all_editor_data', {}); if (response.status === 'success') { globalHomeData = response.aggregatedData; flattenHomeData(); indexDemoQuizzes(); if (activeTab === 'home') renderDashboard(); } } catch (e) { console.error(e); } return globalHomeData; }
         async function fetchAboutData() { try { if(activeTab === 'about') aboutContent.innerHTML = '<p style="text-align:center;">Loading...</p>'; const response = await apiCall('get_about_data', {}); if (response.status === 'success') { globalAboutItems = response.items || []; renderAboutSection(globalAboutItems); } else { if(activeTab === 'about') aboutContent.innerHTML = '<p style="text-align:center;">Failed to load.</p>'; } } catch (e) { console.error(e); } }
@@ -982,25 +1138,136 @@
         document.getElementById('legal-content-section').addEventListener('click', (e) => { if(e.target.classList.contains('share-legal-btn')) { const fullUrl = window.location.origin + window.location.pathname + `?page=about&section=${e.target.dataset.target}`; if(navigator.share) { navigator.share({ title: "Legal Info", url: fullUrl }).catch(console.error); } else { navigator.clipboard.writeText(fullUrl).then(() => alert("Link copied!")); } } });
         ssPasteBtn.addEventListener('click', () => { pasteOverlay.classList.remove('hidden'); pasteTextArea.value = ''; pasteTextArea.focus(); }); cancelPasteBtn.addEventListener('click', () => pasteOverlay.classList.add('hidden')); confirmPasteBtn.addEventListener('click', () => { const rows = pasteTextArea.value.split(/\r\n|\n|\r/); const body = document.getElementById('spreadsheet-body'); body.innerHTML = ''; rows.forEach(rowText => { if(!rowText.trim()) return; const cols = rowText.split('\t'); const tr = document.createElement('tr'); for(let i=0; i<7; i++) { const td = document.createElement('td'); const div = document.createElement('div'); div.className = 'spreadsheet-cell'; div.contentEditable = true; div.innerText = cols[i] || ""; td.appendChild(div); tr.appendChild(td); } body.appendChild(tr); }); pasteOverlay.classList.add('hidden'); });
 
-        const showDashboard = () => { quizDashboard.classList.add('hidden'); aboutDashboard.classList.add('hidden'); quizBuilder.classList.add('hidden'); searchPage.classList.add('hidden'); navHome.classList.remove('active'); navDashboard.classList.remove('active'); navAbout.classList.remove('active'); navSearch.classList.remove('active'); document.title = "Quiz Test Maker"; const url = new URL(window.location.origin + window.location.pathname); if (activeTab === 'about') { url.searchParams.set('page', 'about'); } else if (activeTab === 'search') { url.searchParams.set('page', 'search'); } else if (activeTab === 'dashboard') { url.searchParams.set('page', 'dashboard'); if (currentPath.length > 0) url.searchParams.set('path', currentPath.join(',')); } else { url.searchParams.set('page', 'home'); if (currentPath.length > 0) url.searchParams.set('path', currentPath.join(',')); } if(window.location.href !== url.href) { window.history.pushState({ path: [...currentPath], activeTab: activeTab }, "", url); } if (activeTab === 'about') { aboutDashboard.classList.remove('hidden'); navAbout.classList.add('active'); if(sessionStorage.getItem('isAdmin') === 'true') adminFab.classList.remove('hidden'); else adminFab.classList.add('hidden'); fetchAboutData(); } else if (activeTab === 'search') { searchPage.classList.remove('hidden'); navSearch.classList.add('active'); searchInput.focus(); } else { quizDashboard.classList.remove('hidden'); adminFab.classList.add('hidden'); const staticDemoSection = document.getElementById('static-demo-quizzes'); if (activeTab === 'home' && (currentPath.length === 0 || currentPath[0] === 'root')) { staticDemoSection.classList.remove('hidden'); } else { staticDemoSection.classList.add('hidden'); } renderDashboard(); } };
-        const showBuilder = (quizId = null) => { quizDashboard.classList.add('hidden'); aboutDashboard.classList.add('hidden'); searchPage.classList.add('hidden'); quizBuilder.classList.remove('hidden'); adminFab.classList.add('hidden'); resetBuilder(); if (quizId) { const quiz = findItem(quizId); if (quiz && quiz.type === 'quiz') { document.getElementById('download-quiz-btn').textContent = "Update Quiz & Save"; if(quiz.data) { document.getElementById('builder-title').textContent = `Editing: ${getDisplayName(quiz.name)}`; document.getElementById('editing-quiz-id').value = quizId; populateBuilder(quiz.data); } else if (quiz.backendSheetId) { alert("Fetching quiz data..."); fetchBackendQuizData(quiz.backendSheetId, quiz.sourceBackend).then(data => { if(data) { document.getElementById('builder-title').textContent = `Editing: ${getDisplayName(quiz.name)}`; document.getElementById('editing-quiz-id').value = quizId; data.backendSheetId = quiz.backendSheetId; populateBuilder(data); } else { showDashboard(); } }); } } } else { document.getElementById('builder-title').textContent = 'Create New Quiz'; document.getElementById('download-quiz-btn').textContent = "Download Quiz & Save"; createQuestionCard(); } };
-        async function fetchBackendQuizData(sheetId, explicitBackendUrl = null) { const backendUrl = explicitBackendUrl || localStorage.getItem('quiz_backend_url') || document.getElementById('backend-url').value; if(!backendUrl) { console.error("No backend URL."); return null; } try { const res = await fetch(backendUrl, { method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'get_quiz_data', sheetId: sheetId }) }); const result = await res.json(); if(result.status === 'success') return result.quizData; alert(result.message); return null; } catch(e) { alert("Fetch error: " + e); return null; } }
-        async function fetchAllBackendData(explicitBackendUrl) { try { const response = await fetch(explicitBackendUrl, { method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'get_all_data' }), }); const result = await response.json(); if (result.status === 'success') { const newDb = { items: [] }; const itemMap = new Map(); itemMap.set('root', newDb); if(result.folders) { result.folders.forEach(f => { if (!itemMap.has(f.id)) { const folder = { id: f.id, type: 'folder', name: f.name, items: [] }; itemMap.set(f.id, folder); } }); result.folders.forEach(f => { const folder = itemMap.get(f.id); const parent = itemMap.get(f.parentId) || itemMap.get('root'); if(parent && !parent.items.some(i => i.id === f.id)) { parent.items.push(folder); } }); } result.quizzes.forEach(quiz => { const parentId = quiz.parentId || 'root'; const parent = itemMap.get(parentId) || itemMap.get('root'); if (parent) { const quizItem = { id: `backend_${quiz.sheetId}`, type: 'quiz', name: quiz.name, backendSheetId: quiz.sheetId, data: null, subject: quiz.subject, difficulty: quiz.difficulty, timeLimit: quiz.timeLimit, isAdFree: quiz.isAdFree }; if (!parent.items.some(i => i.id === quizItem.id)) { parent.items.push(quizItem); } } }); const isSharedFetch = explicitBackendUrl !== localStorage.getItem('quiz_backend_url'); if (isSharedFetch) { function markShared(items) { items.forEach(i => { i.isShared = true; if(i.items) markShared(i.items); }); } markShared(newDb.items); sharedData = newDb; } else { saveDb(newDb); } return result; } return false; } catch(e) { console.error(e); return false; } }
-
-        function renderDashboard() { const isHome = activeTab === 'home'; if (isHome) { homeSeoContent.classList.remove('hidden'); dashboardSeoContent.classList.add('hidden'); dashboardControls.classList.add('hidden'); navHome.classList.add('active'); navDashboard.classList.remove('active'); } else { homeSeoContent.classList.add('hidden'); dashboardSeoContent.classList.remove('hidden'); dashboardControls.classList.remove('hidden'); navHome.classList.remove('active'); navDashboard.classList.add('active'); } let rootDb = isHome ? globalHomeData : getDb(); let itemsToShow = []; if (currentPath.length === 0 || currentPath[0] === 'root') { itemsToShow = [...rootDb.items]; if (!isHome) itemsToShow = [...itemsToShow, ...sharedData.items]; } else { let tempFolder = rootDb, found = true; for (const folderId of currentPath) { if (folderId === 'root') continue; const nextFolder = tempFolder.items?.find(i => i.id === folderId); if (nextFolder) { tempFolder = nextFolder; } else { found = false; break; } } if (found && tempFolder !== rootDb) { itemsToShow = tempFolder.items || []; } else if (!isHome) { tempFolder = sharedData; let foundInShared = true; for (const folderId of currentPath) { if (folderId === 'root') continue; const nextFolder = tempFolder.items?.find(i => i.id === folderId); if(nextFolder) { tempFolder = nextFolder; } else { foundInShared = false; break; } } if(foundInShared) itemsToShow = tempFolder.items || []; } } let pathHTML = '<a href="?page=home" data-folder-id="root">Home</a>'; currentPath.forEach(folderId => { if(folderId === 'root') return; const folder = findItem(folderId); if (folder) { pathHTML += `<span>&gt;</span><a href="#" data-folder-id="${folderId}">${getDisplayName(folder.name)}</a>`; } }); breadcrumbTrail.innerHTML = pathHTML; dashboardContent.innerHTML = ''; if (!itemsToShow || itemsToShow.length === 0) { dashboardContent.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #888;">${isHome ? "" : "This folder is empty."}</p>`; if (isHome && document.getElementById('static-demo-quizzes').classList.contains('hidden')) { dashboardContent.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #888;">No public quizzes found.</p>`; } return; } itemsToShow.sort((a, b) => { if (a.type === 'folder' && b.type !== 'folder') return -1; if (a.type !== 'folder' && b.type === 'folder') return 1; return (getDisplayName(a.name) || "").toString().localeCompare((getDisplayName(b.name) || "").toString()); }).forEach(item => { const itemEl = document.createElement('div'); itemEl.className = 'dashboard-item'; itemEl.dataset.id = item.id; itemEl.dataset.type = item.type; const isShared = item.isShared === true; const displayName = getDisplayName(item.name) || "Untitled"; let badgeHTML = ''; if (isHome && item.editorUsername) { badgeHTML = `<span class="editor-badge">By: ${item.editorUsername}</span>`; } const optionsBtnHTML = isHome ? '' : `<button class="options-btn" title="Options">⋮</button>`; let tagsHTML = ''; if(item.type === 'quiz') { let idStr = item.backendSheetId || item.id; if(idStr.length > 10) idStr = idStr.substring(0,8) + '...'; let subjectTag = item.subject ? `<span class="tag-badge subject">${getDisplayName(item.subject)}</span>` : ''; let diffTag = item.difficulty ? `<span class="tag-badge difficulty">${item.difficulty}</span>` : ''; let timeTag = item.timeLimit ? `<span class="item-time">⏱️ ${item.timeLimit}m</span>` : ''; tagsHTML = `<div class="item-tags">${subjectTag} ${diffTag} <span>ID: ${idStr}</span> ${timeTag}</div>`; } if (item.type === 'quiz') { const isLocal = !!item.data; const canShare = isLocal || (item.backendSheetId); itemEl.classList.add('quiz-item'); itemEl.innerHTML = `<div class="item-actions">${canShare ? '<button class="share-btn" title="Share Link">🔗</button>' : ''}${optionsBtnHTML}</div><div class="card-content"><div class="card-icon">${isLocal ? '📝' : '⏰️'}</div><h3 class="item-name">${displayName}</h3>${badgeHTML}<span class="item-type-label">${isLocal ? 'Local Quiz' : 'Backend Quiz'}</span>${tagsHTML}</div>`; } else { itemEl.classList.add('folder-item'); itemEl.innerHTML = `<div class="item-actions"><button class="share-btn" title="Share Folder">🔗</button>${optionsBtnHTML}</div><div class="card-content"><div class="card-icon">🗁</div><h3 class="item-name">${displayName}</h3>${badgeHTML}<span class="item-type-label">Folder</span></div>`; } dashboardContent.appendChild(itemEl); }); }
+        const showDashboard = () => { 
+            quizDashboard.classList.add('hidden'); aboutDashboard.classList.add('hidden'); quizBuilder.classList.add('hidden'); searchPage.classList.add('hidden'); 
+            navHome.classList.remove('active'); navDashboard.classList.remove('active'); navSearch.classList.remove('active'); 
+            document.querySelectorAll('.desktop-nav-link').forEach(l => l.classList.remove('active'));
+            document.title = "Quiz Test Maker"; 
+            
+            const url = new URL(window.location.origin + window.location.pathname); 
+            if (activeTab === 'about') { url.searchParams.set('page', 'about'); } 
+            else if (activeTab === 'search') { url.searchParams.set('page', 'search'); } 
+            else if (activeTab === 'dashboard') { url.searchParams.set('page', 'dashboard'); if (currentPath.length > 0) url.searchParams.set('path', currentPath.join(',')); } 
+            else { url.searchParams.set('page', 'home'); if (currentPath.length > 0) url.searchParams.set('path', currentPath.join(',')); } 
+            if(window.location.href !== url.href) { window.history.pushState({ path: [...currentPath], activeTab: activeTab }, "", url); } 
+            
+            if (activeTab === 'about') { 
+                aboutDashboard.classList.remove('hidden'); 
+                document.getElementById('dk-nav-about').classList.add('active');
+                if(sessionStorage.getItem('isAdmin') === 'true') adminFab.classList.remove('hidden'); else adminFab.classList.add('hidden'); 
+                fetchAboutData(); 
+            } else if (activeTab === 'search') { 
+                searchPage.classList.remove('hidden'); 
+                navSearch.classList.add('active'); 
+                document.getElementById('dk-nav-search').classList.add('active');
+                searchInput.focus(); 
+            } else { 
+                quizDashboard.classList.remove('hidden'); 
+                adminFab.classList.add('hidden'); 
+                const staticDemoSection = document.getElementById('static-demo-quizzes'); 
+                if (activeTab === 'home' && (currentPath.length === 0 || currentPath[0] === 'root')) { 
+                    staticDemoSection.classList.remove('hidden'); 
+                    navHome.classList.add('active');
+                    document.getElementById('dk-nav-home').classList.add('active');
+                } else { 
+                    staticDemoSection.classList.add('hidden'); 
+                    if (activeTab === 'dashboard') {
+                        navDashboard.classList.add('active');
+                        document.getElementById('dk-nav-dashboard').classList.add('active');
+                    }
+                }
+                
+                if (activeTab === 'dashboard' && !localStorage.getItem('editorProfile')) {
+                    activeTab = 'home';
+                    alert("Access Denied: Please log in using the profile icon to access the dashboard workspace.");
+                    showDashboard();
+                    return;
+                }
+                renderDashboard();
+            } 
+        };
         
-        ftHome.addEventListener('click', (e) => { e.preventDefault(); if (activeTab === 'home') return; activeTab = 'home'; currentPath = []; showDashboard(); fetchHomeData(); window.scrollTo(0,0); });
-        ftDashboard.addEventListener('click', (e) => { e.preventDefault(); if (activeTab === 'dashboard') return; activeTab = 'dashboard'; currentPath = []; showDashboard(); window.scrollTo(0,0); });
-        ftAbout.addEventListener('click', (e) => { e.preventDefault(); if (activeTab === 'about') return; activeTab = 'about'; showDashboard(); window.scrollTo(0,0); });
-        navHome.addEventListener('click', () => { if (activeTab === 'home') return; activeTab = 'home'; currentPath = []; showDashboard(); fetchHomeData(); });
-        navDashboard.addEventListener('click', () => { if (activeTab === 'dashboard') return; activeTab = 'dashboard'; currentPath = []; showDashboard(); });
-        navAbout.addEventListener('click', () => { if (activeTab === 'about') return; activeTab = 'about'; showDashboard(); });
-        navSearch.addEventListener('click', () => { if(activeTab === 'search') return; activeTab = 'search'; showDashboard(); });
+        const showBuilder = (quizId = null) => { quizDashboard.classList.add('hidden'); aboutDashboard.classList.add('hidden'); searchPage.classList.add('hidden'); quizBuilder.classList.remove('hidden'); adminFab.classList.add('hidden'); resetBuilder(); if (quizId) { const quiz = findItem(quizId); if (quiz && quiz.type === 'quiz') { document.getElementById('download-quiz-btn').textContent = "Update Quiz & Save"; if(quiz.data) { document.getElementById('builder-title').textContent = `Editing: ${getDisplayName(quiz.name)}`; document.getElementById('editing-quiz-id').value = quizId; populateBuilder(quiz.data); } else if (quiz.backendSheetId) { alert("Fetching quiz data..."); fetchBackendQuizData(quiz.backendSheetId, quiz.sourceBackend).then(data => { if(data) { document.getElementById('builder-title').textContent = `Editing: ${getDisplayName(quiz.name)}`; document.getElementById('editing-quiz-id').value = quizId; data.backendSheetId = quiz.backendSheetId; populateBuilder(data); } else { showDashboard(); } }); } } } else { document.getElementById('builder-title').textContent = 'Create New Quiz'; document.getElementById('download-quiz-btn').textContent = "Download Quiz & Save"; createQuestionCard(); } };
+        
+        async function fetchBackendQuizData(sheetId, explicitBackendUrl = null) { 
+            const profile = JSON.parse(localStorage.getItem('editorProfile') || '{}');
+            const backendUrl = explicitBackendUrl || profile.backendLink || document.getElementById('backend-url').value; 
+            if(!backendUrl || !localStorage.getItem('editorProfile')) { 
+                console.error("Authentication required. Fetch blocked."); 
+                return null; 
+            } 
+            try { 
+                const res = await fetch(backendUrl, { method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'get_quiz_data', sheetId: sheetId }) }); 
+                const result = await res.json(); 
+                if(result.status === 'success') return result.quizData; 
+                alert(result.message); 
+                return null; 
+            } catch(e) { 
+                alert("Fetch error: " + e); 
+                return null; 
+            } 
+        }
+        
+        async function fetchAllBackendData(explicitBackendUrl) { 
+            if(!localStorage.getItem('editorProfile')) {
+                alert("Error: Unauthorized endpoint call. Please re-authenticate your profile session.");
+                return false;
+            }
+            try { 
+                const response = await fetch(explicitBackendUrl, { method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'get_all_data' }), }); 
+                const result = await response.json(); 
+                if (result.status === 'success') { 
+                    const newDb = { items: [] }; 
+                    const itemMap = new Map(); 
+                    itemMap.set('root', newDb); 
+                    if(result.folders) { 
+                        result.folders.forEach(f => { if (!itemMap.has(f.id)) { const folder = { id: f.id, type: 'folder', name: f.name, items: [] }; itemMap.set(f.id, folder); } }); 
+                        result.folders.forEach(f => { const folder = itemMap.get(f.id); const parent = itemMap.get(f.parentId) || itemMap.get('root'); if(parent && !parent.items.some(i => i.id === f.id)) { parent.items.push(folder); } }); 
+                    } 
+                    result.quizzes.forEach(quiz => { 
+                        const parentId = quiz.parentId || 'root'; 
+                        const parent = itemMap.get(parentId) || itemMap.get('root'); 
+                        if (parent) { 
+                            const quizItem = { id: `backend_${quiz.sheetId}`, type: 'quiz', name: quiz.name, backendSheetId: quiz.sheetId, data: null, subject: quiz.subject, difficulty: quiz.difficulty, timeLimit: quiz.timeLimit, isAdFree: quiz.isAdFree }; 
+                            if (!parent.items.some(i => i.id === quizItem.id)) { parent.items.push(quizItem); } 
+                        } 
+                    }); 
+                    const profile = JSON.parse(localStorage.getItem('editorProfile') || '{}');
+                    const isSharedFetch = explicitBackendUrl !== profile.backendLink; 
+                    if (isSharedFetch) { 
+                        function markShared(items) { items.forEach(i => { i.isShared = true; if(i.items) markShared(i.items); }); } 
+                        markShared(newDb.items); 
+                        sharedData = newDb; 
+                    } else { 
+                        saveDb(newDb); 
+                    } 
+                    return result; 
+                } 
+                return false; 
+            } catch(e) { 
+                console.error(e); 
+                return false; 
+            } 
+        }
 
-        dashboardContent.addEventListener('click', (e) => { const target = e.target; const itemEl = target.closest('.dashboard-item'); if (!itemEl) return; const itemId = itemEl.dataset.id; const itemType = itemEl.dataset.type; if (target.classList.contains('options-btn')) { e.stopPropagation(); showItemOptionsModal(itemId, itemType); return; } const action = target.dataset.action; if (action) { e.stopPropagation(); handleItemAction(action, itemId, itemType); return; } if (target.classList.contains('share-btn')) { e.stopPropagation(); const baseUrl = window.location.origin + window.location.pathname; const item = findItem(itemId); let shareQuery = ""; if (itemType === 'folder') { shareQuery = `?page=dashboard&path=${itemId}`; } else { const quiz = item; const slug = generateSlug(getDisplayName(quiz.name)); shareQuery = `?quiz=${slug}`; } const fullShareURL = baseUrl + shareQuery; if(navigator.share) { navigator.share({ title: "Quiz Link", text: `Take this quiz!`, url: fullShareURL }).catch(console.error); } else { navigator.clipboard.writeText(fullShareURL).then(() => alert(`Link copied!\n\n${fullShareURL}`)); } return; } if (itemType === 'folder') { currentPath.push(itemId); showDashboard(); } else if (itemType === 'quiz') { const quiz = findItem(itemId); if (quiz && quiz.data) { (new initializePlayer(JSON.parse(JSON.stringify(quiz.data)))).start(); } else if (quiz && quiz.backendSheetId) { let localBackend = localStorage.getItem('quiz_backend_url') || document.getElementById('backend-url').value; if (quiz.sourceBackend) { localBackend = quiz.sourceBackend; } if (!localBackend) { alert('Cannot play quiz. Backend connection is lost.'); return; } const cardContent = itemEl.querySelector('.card-content'); const processingId = 'loading-' + Date.now(); cardContent.innerHTML += `<p id="${processingId}" class="status-processing" style="font-size:14px; margin-top:10px;">Loading quiz...</p>`; fetchBackendQuizData(quiz.backendSheetId, localBackend).then(data => { const pEl = document.getElementById(processingId); if(pEl) pEl.remove(); if(data) { data.backendSheetId = quiz.backendSheetId; data.backendUrl = localBackend; data.isAdFree = quiz.isAdFree; try { (new initializePlayer(data)).start(); } catch(err) { console.error("Player start error", err); alert("Error loading quiz."); } } else { renderDashboard(); } }); } else { alert('Could not load quiz data.'); } } });
+        function renderDashboard() { const isHome = activeTab === 'home'; if (isHome) { homeSeoContent.classList.remove('hidden'); dashboardSeoContent.classList.add('hidden'); dashboardControls.classList.add('hidden'); } else { homeSeoContent.classList.add('hidden'); dashboardSeoContent.classList.remove('hidden'); dashboardControls.classList.remove('hidden'); } let rootDb = isHome ? globalHomeData : getDb(); let itemsToShow = []; if (currentPath.length === 0 || currentPath[0] === 'root') { itemsToShow = [...rootDb.items]; if (!isHome) itemsToShow = [...itemsToShow, ...sharedData.items]; } else { let tempFolder = rootDb, found = true; for (const folderId of currentPath) { if (folderId === 'root') continue; const nextFolder = tempFolder.items?.find(i => i.id === folderId); if (nextFolder) { tempFolder = nextFolder; } else { found = false; break; } } if (found && tempFolder !== rootDb) { itemsToShow = tempFolder.items || []; } else if (!isHome) { tempFolder = sharedData; let foundInShared = true; for (const folderId of currentPath) { if (folderId === 'root') continue; const nextFolder = tempFolder.items?.find(i => i.id === folderId); if(nextFolder) { tempFolder = nextFolder; } else { foundInShared = false; break; } } if(foundInShared) itemsToShow = tempFolder.items || []; } } let pathHTML = '<a href="?page=home" data-folder-id="root">Home</a>'; currentPath.forEach(folderId => { if(folderId === 'root') return; const folder = findItem(folderId); if (folder) { pathHTML += `<span>&gt;</span><a href="#" data-folder-id="${folderId}">${getDisplayName(folder.name)}</a>`; } }); breadcrumbTrail.innerHTML = pathHTML; dashboardContent.innerHTML = ''; if (!itemsToShow || itemsToShow.length === 0) { dashboardContent.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #888;">${isHome ? "" : "This folder is empty."}</p>`; if (isHome && document.getElementById('static-demo-quizzes').classList.contains('hidden')) { dashboardContent.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #888;">No public quizzes found.</p>`; } return; } itemsToShow.sort((a, b) => { if (a.type === 'folder' && b.type !== 'folder') return -1; if (a.type !== 'folder' && b.type === 'folder') return 1; return (getDisplayName(a.name) || "").toString().localeCompare((getDisplayName(b.name) || "").toString()); }).forEach(item => { const itemEl = document.createElement('div'); itemEl.className = 'dashboard-item'; itemEl.dataset.id = item.id; itemEl.dataset.type = item.type; const displayName = getDisplayName(item.name) || "Untitled"; let badgeHTML = ''; if (isHome && item.editorUsername) { badgeHTML = `<span class="editor-badge">By: ${item.editorUsername}</span>`; } const optionsBtnHTML = isHome ? '' : `<button class="options-btn" title="Options">⋮</button>`; let tagsHTML = ''; if(item.type === 'quiz') { let idStr = item.backendSheetId || item.id; if(idStr.length > 10) idStr = idStr.substring(0,8) + '...'; let subjectTag = item.subject ? `<span class="tag-badge subject">${getDisplayName(item.subject)}</span>` : ''; let diffTag = item.difficulty ? `<span class="tag-badge difficulty">${item.difficulty}</span>` : ''; let timeTag = item.timeLimit ? `<span class="item-time">⏱️ ${item.timeLimit}m</span>` : ''; tagsHTML = `<div class="item-tags">${subjectTag} ${diffTag} <span>ID: ${idStr}</span> ${timeTag}</div>`; } if (item.type === 'quiz') { const isLocal = !!item.data; const canShare = isLocal || (item.backendSheetId); itemEl.classList.add('quiz-item'); itemEl.innerHTML = `<div class="item-actions">${canShare ? '<button class="share-btn" title="Share Link">🔗</button>' : ''}${optionsBtnHTML}</div><div class="card-content"><div class="card-icon">${isLocal ? '📝' : '⏰️'}</div><h3 class="item-name">${displayName}</h3>${badgeHTML}<span class="item-type-label">${isLocal ? 'Local Quiz' : 'Backend Quiz'}</span>${tagsHTML}</div>`; } else { itemEl.classList.add('folder-item'); itemEl.innerHTML = `<div class="item-actions"><button class="share-btn" title="Share Folder">🔗</button>${optionsBtnHTML}</div><div class="card-content"><div class="card-icon">🗁</div><h3 class="item-name">${displayName}</h3>${badgeHTML}<span class="item-type-label">Folder</span></div>`; } dashboardContent.appendChild(itemEl); }); }
+        
+        ftHome.addEventListener('click', (e) => { e.preventDefault(); routeToTab('home'); });
+        ftDashboard.addEventListener('click', (e) => { e.preventDefault(); routeToTab('dashboard'); });
+        ftAbout.addEventListener('click', (e) => { e.preventDefault(); routeToTab('about'); });
+        navHome.addEventListener('click', () => { routeToTab('home'); });
+        navDashboard.addEventListener('click', () => { routeToTab('dashboard'); });
+        navSearch.addEventListener('click', () => { routeToTab('search'); });
+
+        dashboardContent.addEventListener('click', (e) => { const target = e.target; const itemEl = target.closest('.dashboard-item'); if (!itemEl) return; const itemId = itemEl.dataset.id; const itemType = itemEl.dataset.type; if (target.classList.contains('options-btn')) { e.stopPropagation(); showItemOptionsModal(itemId, itemType); return; } const action = target.dataset.action; if (action) { e.stopPropagation(); handleItemAction(action, itemId, itemType); return; } if (target.classList.contains('share-btn')) { e.stopPropagation(); const baseUrl = window.location.origin + window.location.pathname; const item = findItem(itemId); let shareQuery = ""; if (itemType === 'folder') { shareQuery = `?page=dashboard&path=${itemId}`; } else { const quiz = item; const slug = generateSlug(getDisplayName(quiz.name)); shareQuery = `?quiz=${slug}`; } const fullShareURL = baseUrl + shareQuery; if(navigator.share) { navigator.share({ title: "Quiz Link", text: `Take this quiz!`, url: fullShareURL }).catch(console.error); } else { navigator.clipboard.writeText(fullShareURL).then(() => alert(`Link copied!\n\n${fullShareURL}`)); } return; } if (itemType === 'folder') { currentPath.push(itemId); showDashboard(); } else if (itemType === 'quiz') { const quiz = findItem(itemId); if (quiz && quiz.data) { (new initializePlayer(JSON.parse(JSON.stringify(quiz.data)))).start(); } else if (quiz && quiz.backendSheetId) {
+            const profile = JSON.parse(localStorage.getItem('editorProfile') || '{}');
+            let localBackend = profile.backendLink || document.getElementById('backend-url').value; 
+            if (quiz.sourceBackend) { localBackend = quiz.sourceBackend; } 
+            if (!localBackend || !localStorage.getItem('editorProfile')) { alert('Cannot play quiz. Authentic backend session verification is missing.'); return; } 
+            const cardContent = itemEl.querySelector('.card-content'); const processingId = 'loading-' + Date.now(); cardContent.innerHTML += `<p id="${processingId}" class="status-processing" style="font-size:14px; margin-top:10px;">Loading quiz...</p>`; fetchBackendQuizData(quiz.backendSheetId, localBackend).then(data => { const pEl = document.getElementById(processingId); if(pEl) pEl.remove(); if(data) { data.backendSheetId = quiz.backendSheetId; data.backendUrl = localBackend; data.isAdFree = quiz.isAdFree; try { (new initializePlayer(data)).start(); } catch(err) { console.error("Player start error", err); alert("Error loading quiz."); } } else { renderDashboard(); } }); } else { alert('Could not load quiz data.'); } } });
         document.addEventListener('click', (e) => { if (!e.target.closest('.dashboard-item')) { document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.add('hidden')); } });
         breadcrumbTrail.addEventListener('click', (e) => { e.preventDefault(); const folderId = e.target.dataset.folderId; if (folderId) { let newPath = []; if (folderId !== 'root') { const index = currentPath.indexOf(folderId); if (index > -1) { newPath = currentPath.slice(0, index + 1); } } currentPath = newPath; showDashboard(); } });
-  
+      
         function showItemOptionsModal(itemId, itemType) {
             const item = findItem(itemId); if (!item) return;
             const modal = document.getElementById('item-options-modal'), overlay = document.getElementById('action-modal-overlay'), titleEl = document.getElementById('item-options-title'), actionsContainer = document.getElementById('item-options-actions');
@@ -1011,14 +1278,23 @@
         }
         document.getElementById('item-options-cancel').addEventListener('click', () => { document.getElementById('action-modal-overlay').classList.add('hidden'); document.getElementById('item-options-modal').classList.add('hidden'); });
 
-        async function handleItemAction(action, itemId, itemType) { let db = getDb(); let item = findItem(itemId); if (!item) return; const backendUrl = localStorage.getItem('quiz_backend_url'); switch (action) { case 'rename': const cleanName = getDisplayName(item.name); const newName = prompt(`Enter new name for "${cleanName}":`, cleanName); if (newName && newName.trim() !== '') { let tag = ""; if(item.name.includes(USER_TAG_SEPARATOR)) { tag = USER_TAG_SEPARATOR + item.name.split(USER_TAG_SEPARATOR)[1]; } item.name = newName.trim() + tag; saveDb(db); renderDashboard(); if (backendUrl && (item.backendSheetId || itemType === 'folder')) { const idToSend = item.backendSheetId || item.id; try { await fetch(backendUrl, { method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'rename_item', id: idToSend, type: itemType, newName: item.name }) }); } catch(e) { console.error("Backend rename failed", e); } } } break; case 'delete': const confirmMsg = itemType === 'folder' ? `Delete the folder "${getDisplayName(item.name)}"?` : `Delete the quiz "${getDisplayName(item.name)}" and its Google Sheet permanently?`; if (confirm(confirmMsg)) { const parent = findParent(itemId, db); if(parent && parent.items){ const idx = parent.items.findIndex(i => i.id === itemId); if (idx > -1) { parent.items.splice(idx, 1); saveDb(db); renderDashboard(); if (backendUrl && (item.backendSheetId || itemType === 'folder')) { const idToSend = item.backendSheetId || item.id; try { await fetch(backendUrl, { method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'delete_item', id: idToSend, type: itemType }) }); alert("Item deleted from backend."); } catch(e) { alert("Deleted locally, backend sync failed: " + e); } } } } } break; case 're-edit': showBuilder(itemId); break; case 'copy': clipboard = JSON.parse(JSON.stringify(item)); alert(`Copied "${getDisplayName(item.name)}" to clipboard.`); renderDashboard(); break; case 'paste': if (clipboard) { const copiedCleanName = getDisplayName(clipboard.name) + " (Copy)"; const fullNewName = clipboard.name.includes(USER_TAG_SEPARATOR) ? copiedCleanName + USER_TAG_SEPARATOR + clipboard.name.split(USER_TAG_SEPARATOR)[1] : copiedCleanName; if (clipboard.backendSheetId && backendUrl) { try { let currentParentId = 'root'; if(currentPath.length > 0) currentParentId = currentPath[currentPath.length-1]; const resp = await fetch(backendUrl, { method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'copy_item', sourceId: clipboard.backendSheetId, type: 'quiz', targetParentId: currentParentId, newName: fullNewName }) }); const res = await resp.json(); if (res.status === 'success') { const newQuiz = { ...clipboard, id: `backend_${res.newId}`, name: fullNewName, backendSheetId: res.newId }; let targetFolder = db; if(currentPath.length > 0) { targetFolder = findItem(currentPath[currentPath.length-1], db) || db; } if (!targetFolder.items) targetFolder.items = []; targetFolder.items.push(newQuiz); saveDb(db); renderDashboard(); alert("Quiz copied via backend."); } else { throw new Error(res.message); } } catch(e) { alert("Backend Copy Failed: " + e); } } else { const newId = `q_${Date.now()}`; const pastedItem = { ...clipboard, id: newId, name: fullNewName }; let targetFolder = db; if(currentPath.length > 0) { targetFolder = findItem(currentPath[currentPath.length-1], db) || db; } if (!targetFolder.items) targetFolder.items = []; targetFolder.items.push(pastedItem); saveDb(db); syncToBackend(); renderDashboard(); } } break; case 'move': showMoveModal(itemId); break; } }
+        async function handleItemAction(action, itemId, itemType) { let db = getDb(); let item = findItem(itemId); if (!item) return; 
+            const profile = JSON.parse(localStorage.getItem('editorProfile') || '{}');
+            const backendUrl = profile.backendLink; 
+            switch (action) { case 'rename': const cleanName = getDisplayName(item.name); const newName = prompt(`Enter new name for "${cleanName}":`, cleanName); if (newName && newName.trim() !== '') { let tag = ""; if(item.name.includes(USER_TAG_SEPARATOR)) { tag = USER_TAG_SEPARATOR + item.name.split(USER_TAG_SEPARATOR)[1]; } item.name = newName.trim() + tag; saveDb(db); renderDashboard(); if (backendUrl && (item.backendSheetId || itemType === 'folder')) { const idToSend = item.backendSheetId || item.id; try { await fetch(backendUrl, { method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'rename_item', id: idToSend, type: itemType, newName: item.name }) }); } catch(e) { console.error("Backend rename failed", e); } } } break; case 'delete': const confirmMsg = itemType === 'folder' ? `Delete the folder "${getDisplayName(item.name)}"?` : `Delete the quiz "${getDisplayName(item.name)}" and its Google Sheet permanently?`; if (confirm(confirmMsg)) { const parent = findParent(itemId, db); if(parent && parent.items){ const idx = parent.items.findIndex(i => i.id === itemId); if (idx > -1) { parent.items.splice(idx, 1); saveDb(db); renderDashboard(); if (backendUrl && (item.backendSheetId || itemType === 'folder')) { const idToSend = item.backendSheetId || item.id; try { await fetch(backendUrl, { method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'delete_item', id: idToSend, type: itemType }) }); alert("Item deleted from backend."); } catch(e) { alert("Deleted locally, backend sync failed: " + e); } } } } } break; case 're-edit': showBuilder(itemId); break; case 'copy': clipboard = JSON.parse(JSON.stringify(item)); alert(`Copied "${getDisplayName(item.name)}" to clipboard.`); renderDashboard(); break; case 'paste': if (clipboard) { const copiedCleanName = getDisplayName(clipboard.name) + " (Copy)"; const fullNewName = clipboard.name.includes(USER_TAG_SEPARATOR) ? copiedCleanName + USER_TAG_SEPARATOR + clipboard.name.split(USER_TAG_SEPARATOR)[1] : copiedCleanName; if (clipboard.backendSheetId && backendUrl) { try { let currentParentId = 'root'; if(currentPath.length > 0) currentParentId = currentPath[currentPath.length-1]; const resp = await fetch(backendUrl, { method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'copy_item', sourceId: clipboard.backendSheetId, type: 'quiz', targetParentId: currentParentId, newName: fullNewName }) }); const res = await resp.json(); if (res.status === 'success') { const newQuiz = { ...clipboard, id: `backend_${res.newId}`, name: fullNewName, backendSheetId: res.newId }; let targetFolder = db; if(currentPath.length > 0) { targetFolder = findItem(currentPath[currentPath.length-1], db) || db; } if (!targetFolder.items) targetFolder.items = []; targetFolder.items.push(newQuiz); saveDb(db); renderDashboard(); alert("Quiz copied via backend."); } else { throw new Error(res.message); } } catch(e) { alert("Backend Copy Failed: " + e); } } else { const newId = `q_${Date.now()}`; const pastedItem = { ...clipboard, id: newId, name: fullNewName }; let targetFolder = db; if(currentPath.length > 0) { targetFolder = findItem(currentPath[currentPath.length-1], db) || db; } if (!targetFolder.items) targetFolder.items = []; targetFolder.items.push(pastedItem); saveDb(db); renderDashboard(); } } break; case 'move': showMoveModal(itemId); break; } }
         
-        const actionModal = document.getElementById('action-modal-overlay'); document.getElementById('create-new-folder-btn').addEventListener('click', () => { actionModal.classList.remove('hidden'); actionModal.querySelector('#create-folder-modal').classList.remove('hidden'); document.getElementById('new-folder-name').focus(); }); 
-        document.getElementById('create-folder-cancel').addEventListener('click', () => { actionModal.classList.add('hidden'); actionModal.querySelector('#create-folder-modal').classList.add('hidden'); }); 
+        const actionModal = document.getElementById('action-modal-overlay'); document.getElementById('create-new-folder-btn').addEventListener('click', () => { actionModal.classList.remove('hidden'); document.getElementById('create-folder-modal').classList.remove('hidden'); document.getElementById('new-folder-name').focus(); }); 
+        document.getElementById('create-folder-cancel').addEventListener('click', () => { actionModal.classList.add('hidden'); document.getElementById('create-folder-modal').classList.add('hidden'); }); 
         
-        document.getElementById('create-folder-confirm').addEventListener('click', async () => { const nameInput = document.getElementById('new-folder-name'); let folderName = nameInput.value.trim(); let backendUrl = localStorage.getItem('quiz_backend_url'); const editorProfile = JSON.parse(localStorage.getItem('editorProfile') || '{}'); let isFreeTierRequest = false; if (!folderName) { alert('Please enter a folder name.'); return; } if (!backendUrl) { if(!editorProfile.gmail) { alert('Please log in first to create folders.'); return; } const useFree = confirm('Use Free Cloud (1-year storage)?'); if(!useFree) return; isFreeTierRequest = true; } const confirmBtn = document.getElementById('create-folder-confirm'); confirmBtn.disabled = true; confirmBtn.textContent = 'Creating...'; try { if (isFreeTierRequest) { const assignResp = await apiCall('assign_free_backend', {}); if(assignResp.status === 'success' && assignResp.url) { backendUrl = assignResp.url; folderName = folderName + USER_TAG_SEPARATOR + editorProfile.gmail.toLowerCase().trim(); } else { throw new Error('Could not assign free storage.'); } } if (!backendUrl) throw new Error("Backend URL is not available."); const parentId = currentPath.length > 0 ? currentPath[currentPath.length - 1] : 'root'; const response = await fetch(backendUrl, { method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'create_folder', folderName: folderName, parentId: parentId }) }); const result = await response.json(); if (result.status === 'success' && result.newFolder) { const db = getDb(); let parent = (parentId === 'root') ? db : findItem(parentId, db); if (parent) { if (!parent.items) parent.items = []; parent.items.push(result.newFolder); saveDb(db); renderDashboard(); } else { document.getElementById('get-my-quizzes-btn').click(); } actionModal.classList.add('hidden'); actionModal.querySelector('#create-folder-modal').classList.add('hidden'); nameInput.value = ''; } else { throw new Error(result.message || 'Failed to create folder on backend.'); } } catch (error) { alert('Error: ' + error.message); } finally { confirmBtn.disabled = false; confirmBtn.textContent = 'Create'; } });
-        function showMoveModal(itemIdToMove) { const moveModal = document.getElementById('move-item-modal'); const folderList = document.getElementById('move-folder-list'); const confirmBtn = document.getElementById('move-item-confirm'); const db = getDb(); const backendUrl = localStorage.getItem('quiz_backend_url'); let listHTML = '<li data-folder-id="root">🏠 Home (Root)</li>'; function generateFolderList(items, depth = 0) { if (!items) return; items.forEach(item => { if (item.type === 'folder' && item.id !== itemIdToMove) { listHTML += `<li data-folder-id="${item.id}">${'&nbsp;'.repeat(depth * 4)}🗁 ${getDisplayName(item.name)}</li>`; generateFolderList(item.items, depth + 1); } }); } generateFolderList(db.items); folderList.innerHTML = listHTML; confirmBtn.disabled = true; let selectedTargetId = null; folderList.onclick = (e) => { const li = e.target.closest('li'); if (li) { folderList.querySelectorAll('li').forEach(el => el.classList.remove('selected')); li.classList.add('selected'); selectedTargetId = li.dataset.folderId; confirmBtn.disabled = false; } }; document.getElementById('move-item-confirm').onclick = async () => { if (selectedTargetId !== null) { const sourceParent = findParent(itemIdToMove, db); if (sourceParent && sourceParent.items) { const idx = sourceParent.items.findIndex(i => i.id === itemIdToMove); if(idx > -1) { const [itemToMove] = sourceParent.items.splice(idx, 1); const destParent = selectedTargetId === 'root' ? db : findItem(selectedTargetId, db); if (destParent) { if (!destParent.items) destParent.items = []; destParent.items.push(itemToMove); saveDb(db); renderDashboard(); if (backendUrl) { const idToSend = itemToMove.backendSheetId || itemToMove.id; const typeToSend = itemToMove.type; try { await fetch(backendUrl, { method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'move_item', id: idToSend, type: typeToSend, newParentId: selectedTargetId }) }); alert("Move synced to backend."); } catch(e) { console.error("Backend move failed", e); } } actionModal.classList.add('hidden'); moveModal.classList.add('hidden'); } } } } }; document.getElementById('move-item-cancel').onclick = () => { actionModal.classList.add('hidden'); moveModal.classList.add('hidden'); }; actionModal.classList.remove('hidden'); moveModal.classList.remove('hidden'); }
-        const adminPanel = document.getElementById('admin-panel'), editorLoginLogo = document.getElementById('editor-login-logo'), editorProfileCard = document.getElementById('editor-profile-card');
+        document.getElementById('create-folder-confirm').addEventListener('click', async () => { const nameInput = document.getElementById('new-folder-name'); let folderName = nameInput.value.trim();
+            const editorProfile = JSON.parse(localStorage.getItem('editorProfile') || '{}');
+            let backendUrl = editorProfile.backendLink; 
+            let isFreeTierRequest = false; if (!folderName) { alert('Please enter a folder name.'); return; } if (!localStorage.getItem('editorProfile')) { alert('Please log in first to create folders.'); return; } if (!backendUrl) { const useFree = confirm('Use Free Cloud (1-year storage)?'); if(!useFree) return; isFreeTierRequest = true; } const confirmBtn = document.getElementById('create-folder-confirm'); confirmBtn.disabled = true; confirmBtn.textContent = 'Creating...'; try { if (isFreeTierRequest) { const assignResp = await apiCall('assign_free_backend', {}); if(assignResp.status === 'success' && assignResp.url) { backendUrl = assignResp.url; folderName = folderName + USER_TAG_SEPARATOR + editorProfile.gmail.toLowerCase().trim(); } else { throw new Error('Could not assign free storage.'); } } if (!backendUrl) throw new Error("Backend URL is not available."); const parentId = currentPath.length > 0 ? currentPath[currentPath.length - 1] : 'root'; const response = await fetch(backendUrl, { method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'create_folder', folderName: folderName, parentId: parentId }) }); const result = await response.json(); if (result.status === 'success' && result.newFolder) { const db = getDb(); let parent = (parentId === 'root') ? db : findItem(parentId, db); if (parent) { if (!parent.items) parent.items = []; parent.items.push(result.newFolder); saveDb(db); renderDashboard(); } else { document.getElementById('get-my-quizzes-btn').click(); } actionModal.classList.add('hidden'); document.getElementById('create-folder-modal').classList.add('hidden'); nameInput.value = ''; } else { throw new Error(result.message || 'Failed to create folder on backend.'); } } catch (error) { alert('Error: ' + error.message); } finally { confirmBtn.disabled = false; confirmBtn.textContent = 'Create'; } });
+        function showMoveModal(itemIdToMove) { const moveModal = document.getElementById('move-item-modal'); const folderList = document.getElementById('move-folder-list'); const confirmBtn = document.getElementById('move-item-confirm'); const db = getDb(); 
+            const profile = JSON.parse(localStorage.getItem('editorProfile') || '{}');
+            const backendUrl = profile.backendLink; 
+            let listHTML = '<li data-folder-id="root">🏠 Home (Root)</li>'; function generateFolderList(items, depth = 0) { if (!items) return; items.forEach(item => { if (item.type === 'folder' && item.id !== itemIdToMove) { listHTML += `<li data-folder-id="${item.id}">${'&nbsp;'.repeat(depth * 4)}🗁 ${getDisplayName(item.name)}</li>`; generateFolderList(item.items, depth + 1); } }); } generateFolderList(db.items); folderList.innerHTML = listHTML; confirmBtn.disabled = true; let selectedTargetId = null; folderList.onclick = (e) => { const li = e.target.closest('li'); if (li) { folderList.querySelectorAll('li').forEach(el => el.classList.remove('selected')); li.classList.add('selected'); selectedTargetId = li.dataset.folderId; confirmBtn.disabled = false; } }; document.getElementById('move-item-confirm').onclick = async () => { if (selectedTargetId !== null) { const sourceParent = findParent(itemIdToMove, db); if (sourceParent && sourceParent.items) { const idx = sourceParent.items.findIndex(i => i.id === itemIdToMove); if(idx > -1) { const [itemToMove] = sourceParent.items.splice(idx, 1); const destParent = selectedTargetId === 'root' ? db : findItem(selectedTargetId, db); if (destParent) { if (!destParent.items) destParent.items = []; destParent.items.push(itemToMove); saveDb(db); renderDashboard(); if (backendUrl) { const idToSend = itemToMove.backendSheetId || itemToMove.id; const typeToSend = itemToMove.type; try { await fetch(backendUrl, { method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'move_item', id: idToSend, type: typeToSend, newParentId: selectedTargetId }) }); alert("Move synced to backend."); } catch(e) { console.error("Backend move failed", e); } } actionModal.classList.add('hidden'); moveModal.classList.add('hidden'); } } } } }; document.getElementById('move-item-cancel').onclick = () => { actionModal.classList.add('hidden'); moveModal.classList.add('hidden'); }; actionModal.classList.remove('hidden'); moveModal.classList.remove('hidden'); }
+        const adminPanel = document.getElementById('admin-panel'), editorProfileCard = document.getElementById('editor-profile-card');
         async function apiCall(action, payload) { if (!ADMIN_BACKEND_URL) { alert('Admin Backend URL not configured.'); return { status: 'error', message: 'Backend URL missing.' }; } try { const response = await fetch(ADMIN_BACKEND_URL, { method: 'POST', mode: 'cors', body: JSON.stringify({ action, ...payload }) }); return await response.json(); } catch(error) { return { status: 'error', message: error.message }; } }
         const appTitle = document.getElementById('app-title'); let pressTimer, clickCount = 0, clickTimer;
         appTitle.addEventListener('mousedown', () => { pressTimer = setTimeout(() => { if (sessionStorage.getItem('isAdmin') !== 'true') { showAdminLogin(); } }, 10000); }); appTitle.addEventListener('mouseup', () => clearTimeout(pressTimer)); appTitle.addEventListener('mouseleave', () => clearTimeout(pressTimer)); appTitle.addEventListener('click', () => { if (sessionStorage.getItem('isAdmin') === 'true') { clickCount++; clearTimeout(clickTimer); clickTimer = setTimeout(() => { clickCount = 0; }, 2000); if (clickCount === 10) { clickCount = 0; exitAdminMode(); } } });
@@ -1026,13 +1302,54 @@
         document.getElementById('admin-login-cancel').addEventListener('click', () => { document.getElementById('admin-login-modal').classList.add('hidden'); actionModal.classList.add('hidden'); }); document.getElementById('admin-login-confirm').addEventListener('click', async () => { const email = document.getElementById('admin-email').value; const password = document.getElementById('admin-password').value; const btn = document.getElementById('admin-login-confirm'); btn.disabled = true; btn.textContent = 'Verifying...'; const result = await apiCall('admin_login', { email, password }); if (result.status === 'success') { alert('Login Successful!'); enterAdminMode(); document.getElementById('admin-login-modal').classList.add('hidden'); actionModal.classList.add('hidden'); } else { alert('Login Failed: ' + result.message); } btn.disabled = false; btn.textContent = 'Login'; });
         function enterAdminMode() { sessionStorage.setItem('isAdmin', 'true'); adminPanel.classList.remove('hidden'); adminFab.classList.remove('hidden'); } function exitAdminMode() { sessionStorage.removeItem('isAdmin'); adminPanel.classList.add('hidden'); adminFab.classList.add('hidden'); alert('Exited Admin Mode. Reloading page.'); location.reload(); }
         function checkAdminStatus() { if (sessionStorage.getItem('isAdmin') === 'true') { adminPanel.classList.remove('hidden'); if(activeTab === 'about') adminFab.classList.remove('hidden'); } }
-        editorLoginLogo.addEventListener('click', () => { actionModal.classList.remove('hidden'); document.getElementById('editor-login-choice-modal').classList.remove('hidden'); }); document.getElementById('show-create-account-btn').addEventListener('click', () => { document.getElementById('editor-login-choice-modal').classList.add('hidden'); document.getElementById('editor-create-account-modal').classList.remove('hidden'); }); document.getElementById('show-otp-login-btn').addEventListener('click', () => { document.getElementById('editor-login-choice-modal').classList.add('hidden'); document.getElementById('editor-otp-login-modal').classList.remove('hidden'); }); document.getElementById('create-editor-cancel').addEventListener('click', () => { document.getElementById('editor-create-account-modal').classList.add('hidden'); actionModal.classList.add('hidden'); }); document.getElementById('otp-login-cancel').addEventListener('click', () => { document.getElementById('editor-otp-login-modal').classList.add('hidden'); actionModal.classList.add('hidden'); }); document.getElementById('editor-logout-btn').addEventListener('click', () => { localStorage.removeItem('editorProfile'); location.reload(); });
+        
+        document.getElementById('show-create-account-btn').addEventListener('click', () => { document.getElementById('editor-login-choice-modal').classList.add('hidden'); document.getElementById('editor-create-account-modal').classList.remove('hidden'); }); document.getElementById('show-otp-login-btn').addEventListener('click', () => { document.getElementById('editor-login-choice-modal').classList.add('hidden'); document.getElementById('editor-otp-login-modal').classList.remove('hidden'); }); document.getElementById('create-editor-cancel').addEventListener('click', () => { document.getElementById('editor-create-account-modal').classList.add('hidden'); actionModal.classList.add('hidden'); }); document.getElementById('otp-login-cancel').addEventListener('click', () => { document.getElementById('editor-otp-login-modal').classList.add('hidden'); actionModal.classList.add('hidden'); }); document.getElementById('editor-logout-btn').addEventListener('click', () => { localStorage.removeItem('editorProfile'); location.reload(); });
         document.getElementById('create-editor-confirm').addEventListener('click', async () => { const username = document.getElementById('editor-new-username').value, gmail = document.getElementById('editor-new-gmail').value, backendLink = document.getElementById('editor-new-backend-link').value; if (!username || !gmail) { alert('Username and Gmail are required.'); return; } const result = await apiCall('create_editor_account', { username, gmail, backendLink }); if (result.status === 'success') { alert('Account created!'); handleEditorLoginSuccess(result.profile); } else { alert('Error: ' + result.message); } });
         document.getElementById('get-otp-btn').addEventListener('click', async () => { const gmail = document.getElementById('editor-login-gmail').value; if (!gmail) { alert('Please enter Gmail.'); return; } const btn = document.getElementById('get-otp-btn'); btn.disabled = true; btn.textContent = 'Sending...'; const result = await apiCall('request_otp', { gmail }); if (result.status === 'success') { alert(result.message); document.getElementById('otp-input-section').classList.remove('hidden'); btn.classList.add('hidden'); document.getElementById('validate-otp-btn').classList.remove('hidden'); let seconds = 120; const timerEl = document.getElementById('otp-timer'); timerEl.textContent = `OTP expires in ${seconds}s`; const interval = setInterval(() => { seconds--; timerEl.textContent = `OTP expires in ${seconds}s`; if (seconds <= 0) { clearInterval(interval); timerEl.textContent = 'OTP expired.'; } }, 1000); } else { alert('Error: ' + result.message); } btn.disabled = false; btn.textContent = 'Get OTP'; });
         document.getElementById('validate-otp-btn').addEventListener('click', async () => { const gmail = document.getElementById('editor-login-gmail').value, otp = document.getElementById('editor-otp-input').value; if (!otp) { alert('Please enter OTP.'); return; } const result = await apiCall('validate_otp', { gmail, otp }); if (result.status === 'success') { alert('Login successful!'); handleEditorLoginSuccess(result.profile); } else { alert('Error: ' + result.message); } });
-        function handleEditorLoginSuccess(profile) { localStorage.setItem('editorProfile', JSON.stringify(profile)); updateProfileCard(profile); editorLoginLogo.classList.add('hidden'); editorProfileCard.classList.remove('hidden'); actionModal.classList.add('hidden'); document.querySelectorAll('#action-modal-overlay .modal-card').forEach(m => m.classList.add('hidden')); document.getElementById('get-my-quizzes-btn').classList.remove('hidden'); if (profile.backendLink) { localStorage.setItem('quiz_backend_url', profile.backendLink); const backendInput = document.getElementById('backend-url'); if(backendInput) backendInput.value = profile.backendLink; } else { localStorage.removeItem('quiz_backend_url'); } }
+        
+        // Modal views for desktop profile interaction targets
+        function viewProfileModalDetails() {
+            const profile = JSON.parse(localStorage.getItem('editorProfile') || '{}');
+            if(!profile.gmail) return;
+            let extText = profile.backendLink ? `<a href="${profile.backendLink}" target="_blank">${profile.backendLink}</a>` : 'Free Tier Cloud Space';
+            document.getElementById('modal-profile-info-payload').innerHTML = `<strong>Username:</strong> ${profile.username}<br><strong>Gmail:</strong> ${profile.gmail}<br><strong>Matrix Sync:</strong> ${extText}`;
+            actionModal.classList.remove('hidden');
+            document.getElementById('view-profile-details-modal').classList.remove('hidden');
+        }
+        document.getElementById('dk-nav-view-profile').addEventListener('click', viewProfileModalDetails);
+        document.getElementById('close-profile-modal-btn').addEventListener('click', () => {
+            actionModal.classList.add('hidden');
+            document.getElementById('view-profile-details-modal').classList.add('hidden');
+        });
+
+        function handleEditorLoginSuccess(profile) { 
+            localStorage.setItem('editorProfile', JSON.stringify(profile)); 
+            updateProfileCard(profile); 
+            
+            // Hide explicit external view triggers, moving mapping targets to verification views
+            editorProfileCard.classList.remove('hidden'); 
+            actionModal.classList.add('hidden'); 
+            document.querySelectorAll('#action-modal-overlay .modal-card').forEach(m => { if(m.id !== 'view-profile-details-modal') m.classList.add('hidden'); }); 
+            document.getElementById('get-my-quizzes-btn').classList.remove('hidden'); 
+            
+            // Update large view configurations mapping targets
+            document.getElementById('dk-nav-create-acc').classList.add('hidden');
+            document.getElementById('dk-nav-login').classList.add('hidden');
+            document.getElementById('dk-nav-view-profile').classList.remove('hidden');
+            document.getElementById('menu-opt-create-acc').classList.add('hidden');
+            document.getElementById('menu-opt-login').classList.add('hidden');
+
+            if (profile.backendLink) { 
+                const backendInput = document.getElementById('backend-url'); 
+                if(backendInput) backendInput.value = profile.backendLink; 
+            } else { 
+                const backendInput = document.getElementById('backend-url'); 
+                if(backendInput) backendInput.value = ''; 
+            } 
+        }
         function updateProfileCard(profile) { document.getElementById('profile-username').textContent = profile.username; document.getElementById('profile-gmail').textContent = profile.gmail; const backendDetails = document.getElementById('profile-backend-details'); if (profile.backendLink) { backendDetails.innerHTML = `Backend: <a href="${profile.backendLink}" target="_blank" title="${profile.backendLink}">View Link</a>`; } else { backendDetails.innerHTML = `<span style="color:#d9534f; font-weight:bold;">Free Tier</span><br><button id="save-backend-link-btn" class="btn btn-primary" style="padding: 3px 8px; font-size: 11px; margin-top: 5px;">Upgrade</button>`; document.getElementById('save-backend-link-btn').addEventListener('click', async () => { const newLink = prompt('Enter your Quiz Data Script URL:'); if (newLink && newLink.startsWith('https://script.google.com')) { const result = await apiCall('update_editor_backend_link', { gmail: profile.gmail, backendLink: newLink }); if (result.status === 'success') { alert('Backend link saved! You are Pro.'); profile.backendLink = newLink; localStorage.setItem('editorProfile', JSON.stringify(profile)); updateProfileCard(profile); location.reload(); } else { alert('Error: ' + result.message); } } else if(newLink) { alert('Invalid URL.'); } }); } }
-        function checkEditorStatus() { const profile = localStorage.getItem('editorProfile'); if (profile) { handleEditorLoginSuccess(JSON.parse(profile)); } }
+        function checkEditorStatus() { const profile = localStorage.getItem('editorProfile'); if (profile) { handleEditorLoginSuccess(JSON.parse(profile)); } else { const backendInput = document.getElementById('backend-url'); if(backendInput) backendInput.value = ''; } }
         
         let questionCount = 0, termsAndConditions = { content: null, type: null }, preQuizQuestions = [], isBackendConnected = false, logoSrc = null;
         document.getElementById('back-to-dashboard-btn').addEventListener('click', showDashboard); document.getElementById('create-new-quiz-btn').addEventListener('click', () => showBuilder());
@@ -1041,10 +1358,18 @@
         
         document.getElementById('quiz-logo').addEventListener('change', (e) => { const file = e.target.files[0]; const preview = document.getElementById('quiz-logo-preview'); if (file) { const reader = new FileReader(); reader.onload = (event) => { logoSrc = event.target.result; preview.src = logoSrc; preview.style.display = 'block'; }; reader.readAsDataURL(file); } else { logoSrc = null; preview.style.display = 'none'; } });
         const backendToggle = document.getElementById('backend-toggle'), backendIndependentToggle = document.getElementById('backend-independent-toggle'), backendDetailsContainer = document.getElementById('backend-details-container'), testBackendBtn = document.getElementById('test-backend-btn'), backendStatus = document.getElementById('backend-connection-status'), backendUrlInput = document.getElementById('backend-url'); 
-        const loadSavedBackendDetails = () => { const savedUrl = localStorage.getItem('quiz_backend_url'); if(savedUrl) { backendUrlInput.value = savedUrl; isBackendConnected = true; backendStatus.textContent = '✅ Restored connection.'; backendStatus.className = 'status-success'; document.getElementById('get-my-quizzes-btn').classList.remove('hidden'); } }; 
+        const loadSavedBackendDetails = () => { 
+            const profile = JSON.parse(localStorage.getItem('editorProfile') || '{}');
+            const savedUrl = profile.backendLink; 
+            if(savedUrl && localStorage.getItem('editorProfile')) { 
+                backendUrlInput.value = savedUrl; isBackendConnected = true; backendStatus.textContent = '✅ Verified backend link synchronized.'; backendStatus.className = 'status-success'; document.getElementById('get-my-quizzes-btn').classList.remove('hidden'); 
+            } else {
+                backendUrlInput.value = '';
+            }
+        }; 
         const updateBackendUI = () => { backendDetailsContainer.classList.toggle('hidden', !(backendToggle.checked || backendIndependentToggle.checked)); }; 
         backendToggle.addEventListener('change', updateBackendUI); backendIndependentToggle.addEventListener('change', updateBackendUI);
-        testBackendBtn.addEventListener('click', async () => { const url = backendUrlInput.value.trim(); if (!url) { backendStatus.className = 'status-error'; backendStatus.textContent = '❌ Please enter URL.'; return; } backendStatus.textContent = 'Testing...'; backendStatus.className = 'status-processing'; testBackendBtn.disabled = true; try { const response = await fetch(url, { method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'test' }), }); const result = await response.json(); if (result.status === 'success') { isBackendConnected = true; localStorage.setItem('quiz_backend_url', url); backendStatus.className = 'status-success'; backendStatus.textContent = `✅ Connected! Use "Get My Quizzes" on dashboard.`; document.getElementById('get-my-quizzes-btn').classList.remove('hidden'); } else { throw new Error(result.message || 'Error'); } } catch (error) { isBackendConnected = false; backendStatus.className = 'status-error'; backendStatus.textContent = `❌ Connection Failed. Check URL & permissions.`; document.getElementById('get-my-quizzes-btn').classList.add('hidden'); } finally { testBackendBtn.disabled = false; } });
+        testBackendBtn.addEventListener('click', async () => { const url = backendUrlInput.value.trim(); if (!url || !localStorage.getItem('editorProfile')) { backendStatus.className = 'status-error'; backendStatus.textContent = '❌ Authentication Required.'; return; } backendStatus.textContent = 'Testing...'; backendStatus.className = 'status-processing'; testBackendBtn.disabled = true; try { const response = await fetch(url, { method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'test' }), }); const result = await response.json(); if (result.status === 'success') { isBackendConnected = true; backendStatus.className = 'status-success'; backendStatus.textContent = `✅ Connected! Use "Get My Quizzes" on dashboard.`; document.getElementById('get-my-quizzes-btn').classList.remove('hidden'); } else { throw new Error(result.message || 'Error'); } } catch (error) { isBackendConnected = false; backendStatus.className = 'status-error'; backendStatus.textContent = `❌ Connection Failed. Check parameters.`; document.getElementById('get-my-quizzes-btn').classList.add('hidden'); } finally { testBackendBtn.disabled = false; } });
         
         const addQuestionBtn = document.getElementById('add-question-btn'), questionsContainer = document.getElementById('questions-container'), previewQuizBtn = document.getElementById('preview-quiz-btn'), downloadQuizBtn = document.getElementById('download-quiz-btn'), collectInfoToggle = document.getElementById('collect-info-toggle'), preQuizSection = document.getElementById('pre-quiz-questions-section');
         const addPreQuestionBtn = document.getElementById('add-pre-question-btn'), preQuestionModal = document.getElementById('add-pre-question-modal-overlay'), preQuestionLabel = document.getElementById('pre-question-label'), preQuestionType = document.getElementById('pre-question-type'), preQuestionOptionsContainer = document.getElementById('pre-question-options-container'), preQuestionOptions = document.getElementById('pre-question-options'), addPreQuestionConfirm = document.getElementById('add-pre-question-confirm'), addPreQuestionCancel = document.getElementById('add-pre-question-cancel'), preQuizList = document.getElementById('pre-quiz-questions-list'), scheduleQuizToggle = document.getElementById('schedule-quiz-toggle'), scheduleDetailsContainer = document.getElementById('schedule-details-container'); 
@@ -1083,18 +1408,38 @@
             const data = { quizTitle: title, organization: org, quizTopic: topic, timeLimit, subject, difficulty, nextTestTitle, nextTestUrl, questions: allQuestions, terms: termsAndConditions, preQuizQuestions: shouldCollectInfo ? preQuizQuestions : [], scheduledDateTime: scheduledDateTime, entryRestriction: entryRestriction, entryWindow: entryWindow, isIndependentBackend: document.getElementById('backend-independent-toggle').checked, logoSrc: logoSrc, folderStructure: folderStructure, hideResults: hideResults, isKioskMode: isKioskMode, shuffleQuestions: shuffleQuestions }; 
             const existingId = document.getElementById('editing-quiz-id').value; data.quizId = existingId || `id_${Date.now()}`; 
             const editorProfile = JSON.parse(localStorage.getItem('editorProfile') || '{}'); if (editorProfile.gmail) { data.editorGmail = editorProfile.gmail; data.editorUsername = editorProfile.username; }
-            if (currentPath.length > 0) { data.parentFolderId = currentPath[currentPath.length - 1]; } else { data.parentFolderId = 'root'; } if (backendToggle.checked || backendIndependentToggle.checked && isBackendConnected) { data.backendUrl = backendUrlInput.value.trim(); } return data; 
+            if (currentPath.length > 0) { data.parentFolderId = currentPath[currentPath.length - 1]; } else { data.parentFolderId = 'root'; }
+            
+            if ((backendToggle.checked || backendIndependentToggle.checked) && localStorage.getItem('editorProfile')) { 
+                data.backendUrl = editorProfile.backendLink; 
+            } return data; 
         }
         
         previewQuizBtn.addEventListener('click', () => { const quizData = collectQuizData(); if (quizData.questions.length === 0) { alert('Add at least one question!'); return; } (new initializePlayer(JSON.parse(JSON.stringify(quizData)))).start(); });
-        downloadQuizBtn.addEventListener('click', async () => { const quizData = collectQuizData(); if (quizData.questions.length === 0) { alert('Add at least one question.'); return; } let backendUrl = localStorage.getItem('quiz_backend_url'); const editorProfile = JSON.parse(localStorage.getItem('editorProfile') || '{}'); if ((backendToggle.checked || backendIndependentToggle.checked)) { if (!backendUrl) { if(!editorProfile.gmail) { alert("Log in to save quizzes to cloud."); return; } if (confirm("Use Free Mode? (1 year storage)")) { downloadQuizBtn.disabled = true; downloadQuizBtn.textContent = "Assigning Cloud..."; try { const resp = await apiCall('assign_free_backend', {}); if(resp.status === 'success' && resp.url) { backendUrl = resp.url; quizData.subject = (quizData.subject || "General") + USER_TAG_SEPARATOR + editorProfile.gmail.toLowerCase().trim(); } else { throw new Error("Could not assign cloud storage."); } } catch(e) { alert(e.message); downloadQuizBtn.disabled = false; downloadQuizBtn.textContent = "Download & Save"; return; } } else { return; } } quizData.backendUrl = backendUrl; } downloadQuizBtn.disabled = true; downloadQuizBtn.textContent = "Saving..."; const db = getDb(); const editingId = document.getElementById('editing-quiz-id').value; let quizEntry; if (editingId) { quizEntry = findItem(editingId, db); if(quizEntry) { quizEntry.name = quizData.quizTitle; quizEntry.data = quizData; } } else { let parent = db; if (currentPath.length > 0) { parent = findItem(currentPath[currentPath.length-1], db) || db; } quizEntry = { id: `q_${Date.now()}`, type: 'quiz', name: quizData.quizTitle, data: quizData }; if (!parent.items) parent.items = []; parent.items.push(quizEntry); } saveDb(db); alert(`Quiz "${quizData.quizTitle}" saved to local dashboard!`); if (backendToggle.checked || backendIndependentToggle.checked) { downloadQuizBtn.textContent = "Saving to Backend..."; try { const response = await fetch(quizData.backendUrl, { method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'create_quiz_sheet', quizData: quizData }) }); const result = await response.json(); if(result.status === 'success' && result.sheetId) { quizData.backendSheetId = result.sheetId; if(quizEntry) { quizEntry.backendSheetId = result.sheetId; saveDb(db); renderDashboard(); } console.log("Backend sheet created/updated:", result.sheetId); } else { throw new Error(result.message || "Backend failed."); } } catch(e) { alert("Error saving to Backend: " + e.message + "\nQuiz downloaded locally."); delete quizData.backendUrl; } } downloadQuizBtn.textContent = "Generating File..."; let suggestedName = quizData.quizTitle.trim().replace(/\s+/g, '_') || "quiz"; let fileName = prompt("Enter filename for local HTML download:", suggestedName); if(fileName === null) { downloadQuizBtn.disabled = false; downloadQuizBtn.textContent = "Download & Save"; return; } const cssStyles = [...document.querySelectorAll('style')].map(s => s.innerHTML).join('\n'); let playerHTML = document.getElementById('quiz-play-fullscreen').outerHTML + document.getElementById('popup-overlay').outerHTML + document.getElementById('student-loading').outerHTML + document.getElementById('special-char-popup').outerHTML; playerHTML = playerHTML.replace(/<button class="exit-quiz-btn".*?<\/button>/, ''); const playerScript = `const QUIZ_DATA = ${JSON.stringify(quizData)};\nconst initializePlayer = ${initializePlayer.toString()};\ndocument.addEventListener('DOMContentLoaded', () => { (new initializePlayer(QUIZ_DATA)).start(); });`; const quizFileContent = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${quizData.quizTitle}</title><style>${cssStyles}</style></head><body>${playerHTML}<script>${playerScript}<\/script></body></html>`; const blob = new Blob([quizFileContent], { type: 'text/html' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = (fileName.trim() || suggestedName) + '.html'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); downloadQuizBtn.disabled = false; downloadQuizBtn.textContent = "Download & Save"; showDashboard(); });
-        document.getElementById('get-my-quizzes-btn').addEventListener('click', async () => { const backendUrl = localStorage.getItem('quiz_backend_url') || document.getElementById('backend-url').value; const btn = document.getElementById('get-my-quizzes-btn'); const editorProfile = JSON.parse(localStorage.getItem('editorProfile') || '{}'); btn.textContent = 'Fetching...'; btn.disabled = true; if (backendUrl) { const result = await fetchAllBackendData(backendUrl); if (result) { renderDashboard(); let qCount = result.quizzes ? result.quizzes.length : 0, fCount = result.folders ? result.folders.length : 0; alert(`✅ Sync Successful!\nFolders: ${fCount}\nQuizzes: ${qCount}`); } else { alert("Failed to fetch quizzes."); } } else if (editorProfile.gmail) { const freeResult = await apiCall('get_free_user_data', { gmail: editorProfile.gmail }); if (freeResult.status === 'success') { const newDb = { items: [] }; const itemMap = new Map(); itemMap.set('root', newDb); const userTag = USER_TAG_SEPARATOR + editorProfile.gmail.toLowerCase().trim(); const myFolders = (freeResult.folders || []).filter(f => f.name && f.name.toLowerCase().includes(userTag)); const validFolderIds = new Set(myFolders.map(f => f.id)); const myQuizzes = (freeResult.quizzes || []).filter(q => { const subjMatches = q.subject && q.subject.toLowerCase().includes(userTag); const nameMatches = q.name && q.name.toLowerCase().includes(userTag); const parentMatches = validFolderIds.has(q.parentId); return subjMatches || nameMatches || parentMatches; }); if(myFolders) { myFolders.forEach(f => { if (!itemMap.has(f.id)) { const folder = { id: f.id, type: 'folder', name: f.name, items: [] }; itemMap.set(f.id, folder); } }); myFolders.forEach(f => { const folder = itemMap.get(f.id); const parent = itemMap.get(f.parentId) || itemMap.get('root'); if(parent && !parent.items.some(i => i.id === f.id)) { parent.items.push(folder); } }); } myQuizzes.forEach(quiz => { const parentId = quiz.parentId || 'root'; const parent = itemMap.get(parentId) || itemMap.get('root'); if (parent) { const quizItem = { id: `backend_${quiz.sheetId}`, type: 'quiz', name: quiz.name, backendSheetId: quiz.sheetId, data: null, subject: quiz.subject, difficulty: quiz.difficulty, timeLimit: quiz.timeLimit, isAdFree: quiz.isAdFree }; if (!parent.items.some(i => i.id === quizItem.id)) { parent.items.push(quizItem); } } }); sharedData = newDb; saveDb(newDb); renderDashboard(); alert(`✅ Free Tier Sync!\nFound ${myFolders.length} Folders and ${myQuizzes.length} Quizzes.`); } else { alert("Failed to find free tier quizzes."); } } else { alert('No backend URL. Connect in builder or log in for Free Mode.'); } btn.textContent = '🔄 Refresh Backend'; btn.disabled = false; });
+        downloadQuizBtn.addEventListener('click', async () => { const quizData = collectQuizData(); if (quizData.questions.length === 0) { alert('Add at least one question.'); return; } 
+            const editorProfile = JSON.parse(localStorage.getItem('editorProfile') || '{}');
+            let backendUrl = editorProfile.backendLink; 
+            if ((backendToggle.checked || backendIndependentToggle.checked)) { if (!backendUrl) { if(!editorProfile.gmail) { alert("Log in to save quizzes to cloud."); return; } if (confirm("Use Free Mode? (1 year storage)")) { downloadQuizBtn.disabled = true; downloadQuizBtn.textContent = "Assigning Cloud..."; try { const resp = await apiCall('assign_free_backend', {}); if(resp.status === 'success' && resp.url) { backendUrl = resp.url; quizData.subject = (quizData.subject || "General") + USER_TAG_SEPARATOR + editorProfile.gmail.toLowerCase().trim(); } else { throw new Error("Could not assign cloud storage."); } } catch(e) { alert(e.message); downloadQuizBtn.disabled = false; downloadQuizBtn.textContent = "Download & Save"; return; } } else { return; } } quizData.backendUrl = backendUrl; } downloadQuizBtn.disabled = true; downloadQuizBtn.textContent = "Saving..."; const db = getDb(); const editingId = document.getElementById('editing-quiz-id').value; let quizEntry; if (editingId) { quizEntry = findItem(editingId, db); if(quizEntry) { quizEntry.name = quizData.quizTitle; quizEntry.data = quizData; } } else { let parent = db; if (currentPath.length > 0) { parent = findItem(currentPath[currentPath.length-1], db) || db; } quizEntry = { id: `q_${Date.now()}`, type: 'quiz', name: quizData.quizTitle, data: quizData }; if (!parent.items) parent.items = []; parent.items.push(quizEntry); } saveDb(db); alert(`Quiz "${quizData.quizTitle}" saved to local dashboard!`); if ((backendToggle.checked || backendIndependentToggle.checked) && localStorage.getItem('editorProfile')) { downloadQuizBtn.textContent = "Saving to Backend..."; try { const response = await fetch(quizData.backendUrl, { method: 'POST', mode: 'cors', body: JSON.stringify({ action: 'create_quiz_sheet', quizData: quizData }) }); const result = await response.json(); if(result.status === 'success' && result.sheetId) { quizData.backendSheetId = result.sheetId; if(quizEntry) { quizEntry.backendSheetId = result.sheetId; saveDb(db); renderDashboard(); } console.log("Backend sheet created/updated:", result.sheetId); } else { throw new Error(result.message || "Backend failed."); } } catch(e) { alert("Error saving to Backend: " + e.message + "\nQuiz downloaded locally."); delete quizData.backendUrl; } } downloadQuizBtn.textContent = "Generating File..."; let suggestedName = quizData.quizTitle.trim().replace(/\s+/g, '_') || "quiz"; let fileName = prompt("Enter filename for local HTML download:", suggestedName); if(fileName === null) { downloadQuizBtn.disabled = false; downloadQuizBtn.textContent = "Download & Save"; return; } const cssStyles = [...document.querySelectorAll('style')].map(s => s.innerHTML).join('\n'); let playerHTML = document.getElementById('quiz-play-fullscreen').outerHTML + document.getElementById('popup-overlay').outerHTML + document.getElementById('student-loading').outerHTML + document.getElementById('special-char-popup').outerHTML; playerHTML = playerHTML.replace(/<button class="exit-quiz-btn".*?<\/button>/, ''); const playerScript = `const QUIZ_DATA = ${JSON.stringify(quizData)};\nconst initializePlayer = ${initializePlayer.toString()};\ndocument.addEventListener('DOMContentLoaded', () => { (new initializePlayer(QUIZ_DATA)).start(); });`; const quizFileContent = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${quizData.quizTitle}</title><style>${cssStyles}</style></head><body>${playerHTML}<script>${playerScript}<\/script></body></html>`; const blob = new Blob([quizFileContent], { type: 'text/html' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = (fileName.trim() || suggestedName) + '.html'; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); downloadQuizBtn.disabled = false; downloadQuizBtn.textContent = "Download & Save"; showDashboard(); });
+        
+        document.getElementById('get-my-quizzes-btn').addEventListener('click', async () => { 
+            const editorProfile = JSON.parse(localStorage.getItem('editorProfile') || '{}');
+            const backendUrl = editorProfile.backendLink; 
+            const btn = document.getElementById('get-my-quizzes-btn'); btn.textContent = 'Fetching...'; btn.disabled = true; 
+            
+            if(!localStorage.getItem('editorProfile')) {
+                alert("Action Blocked: Editor authentication required to access backend links.");
+                btn.textContent = '🔄 Refresh Backend';
+                btn.disabled = false;
+                return;
+            }
+
+            if (backendUrl) { const result = await fetchAllBackendData(backendUrl); if (result) { renderDashboard(); let qCount = result.quizzes ? result.quizzes.length : 0, fCount = result.folders ? result.folders.length : 0; alert(`✅ Sync Successful!\nFolders: ${fCount}\nQuizzes: ${qCount}`); } else { alert("Failed to fetch quizzes."); } } else if (editorProfile.gmail) { const freeResult = await apiCall('get_free_user_data', { gmail: editorProfile.gmail }); if (freeResult.status === 'success') { const newDb = { items: [] }; const itemMap = new Map(); itemMap.set('root', newDb); const userTag = USER_TAG_SEPARATOR + editorProfile.gmail.toLowerCase().trim(); const myFolders = (freeResult.folders || []).filter(f => f.name && f.name.toLowerCase().includes(userTag)); const validFolderIds = new Set(myFolders.map(f => f.id)); const myQuizzes = (freeResult.quizzes || []).filter(q => { const subjMatches = q.subject && q.subject.toLowerCase().includes(userTag); const nameMatches = q.name && q.name.toLowerCase().includes(userTag); const parentMatches = validFolderIds.has(q.parentId); return subjMatches || nameMatches || parentMatches; }); if(myFolders) { myFolders.forEach(f => { if (!itemMap.has(f.id)) { const folder = { id: f.id, type: 'folder', name: f.name, items: [] }; itemMap.set(f.id, folder); } }); myFolders.forEach(f => { const folder = itemMap.get(f.id); const parent = itemMap.get(f.parentId) || itemMap.get('root'); if(parent && !parent.items.some(i => i.id === f.id)) { parent.items.push(folder); } }); } myQuizzes.forEach(quiz => { const parentId = quiz.parentId || 'root'; const parent = itemMap.get(parentId) || itemMap.get('root'); if (parent) { const quizItem = { id: `backend_${quiz.sheetId}`, type: 'quiz', name: quiz.name, backendSheetId: quiz.sheetId, data: null, subject: quiz.subject, difficulty: quiz.difficulty, timeLimit: quiz.timeLimit, isAdFree: quiz.isAdFree }; if (!parent.items.some(i => i.id === quizItem.id)) { parent.items.push(quizItem); } } }); sharedData = newDb; saveDb(newDb); renderDashboard(); alert(`✅ Free Tier Sync!\nFound ${myFolders.length} Folders and ${myQuizzes.length} Quizzes.`); } else { alert("Failed to find free tier quizzes."); } } else { alert('No backend URL associated with profile layout matrix.'); } btn.textContent = '🔄 Refresh Backend'; btn.disabled = false; });
         
         function handleBackNavigation(event) { if (activeQuizPlayer) return; const params = new URLSearchParams(window.location.search); if (params.get('path')) { currentPath = params.get('path').split(','); } else { currentPath = []; } if (event.state && event.state.activeTab) { activeTab = event.state.activeTab; } else { const page = params.get('page'); if(page === 'about') activeTab = 'about'; else if(page === 'search') activeTab = 'search'; else if(page === 'dashboard') activeTab = 'dashboard'; else activeTab = 'home'; } showDashboard(); }
         function setupDemoQuizzes() { const demoCards = document.querySelectorAll('.demo-quiz-card'), footerDemoLinks = document.querySelector('#footer-demo-links'); demoCards.forEach(card => { const title = card.querySelector('.demo-quiz-title').textContent, quizId = card.dataset.quizId; card.addEventListener('click', (e) => { if(e.target.classList.contains('demo-share-btn')) return; playDemoQuiz(card); }); const shareBtn = card.querySelector('.demo-share-btn'); if(shareBtn) { shareBtn.addEventListener('click', (e) => { e.stopPropagation(); const fullUrl = window.location.origin + window.location.pathname + '?quiz=' + quizId; if(navigator.share) { navigator.share({ title: title, url: fullUrl }).catch(console.error); } else { navigator.clipboard.writeText(fullUrl).then(() => alert("Link copied!\n" + fullUrl)); } }); } const link = document.createElement('a'); link.href = "?quiz=" + quizId; link.textContent = title; link.addEventListener('click', (e) => { e.preventDefault(); playDemoQuiz(card); }); footerDemoLinks.appendChild(link); }); }
         function playDemoQuiz(cardElement) { const quizId = cardElement.dataset.quizId, title = cardElement.querySelector('.demo-quiz-title').textContent; const questionElements = cardElement.querySelectorAll('.demo-question'), questions = []; questionElements.forEach((qEl, index) => { const qText = qEl.querySelector('.q-text').textContent, qExp = qEl.querySelector('.q-exp').textContent, correctIdx = parseInt(qEl.dataset.correct), options = []; qEl.querySelectorAll('.q-opt').forEach(opt => options.push(opt.textContent)); questions.push({ questionNumber: (index + 1).toString(), type: 'text-mcq', text: qText, options: options, correctIndex: correctIdx, explanation: qExp, selectedOption: null, fixed: false, marked: false, isSubQuestion: false, passageData: null }); }); const quizData = { quizTitle: title, quizTopic: 'Demo Practice', organization: 'Quiz Test Maker', timeLimit: 0, questions: questions, isAdFree: false, isDemo: true }; const url = new URL(window.location); url.searchParams.set('quiz', quizId); if(window.location.search !== url.search) { history.pushState(null, null, url); } (new initializePlayer(quizData)).start(); }
         function checkDemoHash() { const quizId = new URLSearchParams(window.location.search).get('quiz'); if(quizId) { const card = document.querySelector(`.demo-quiz-card[data-quiz-id="${quizId}"]`); if(card) { playDemoQuiz(card); return true; } } return false; }
-        async function initialize_app() { window.addEventListener('popstate', handleBackNavigation); recordVisit(); fetchAboutData(); loadSavedBackendDetails(); checkAdminStatus(); checkEditorStatus(); setupDemoQuizzes(); if(checkDemoHash()) return; const params = new URLSearchParams(window.location.search); if (params.get('page') === 'about' && params.get('section')) { activeTab = 'about'; showDashboard(); const sectionId = params.get('section'); setTimeout(() => { const el = document.getElementById(sectionId); if(el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.style.border = '2px solid var(--secondary-color)'; setTimeout(() => { el.style.border = '1px solid var(--border-color)'; }, 3000); } }, 500); return; } if (params.get('share_id')) { activeTab = 'about'; showDashboard(); handleAboutItemDeepLink(params); return; } if (params.get('quiz')) { if(params.get('id') && params.get('source')) { startDeepLinkQuiz(params.get('id'), params.get('source')); return; } loadingScreen.classList.remove('hidden'); document.getElementById('loading-text').textContent = "Finding Quiz..."; try { const adminResponse = await apiCall('get_all_editor_data', {}); if(adminResponse.status === 'success') { const allData = adminResponse.aggregatedData; const targetSlug = params.get('quiz'); let foundQuiz = null; function searchForQuiz(items) { if(!items) return; for(const item of items) { const itemSlug = generateSlug(getDisplayName(item.name)); if(itemSlug === targetSlug || item.id === targetSlug) { foundQuiz = item; return; } if(item.type === 'folder') searchForQuiz(item.items); } } searchForQuiz(allData.items); if(foundQuiz && foundQuiz.sourceBackend) { startDeepLinkQuiz(foundQuiz.backendSheetId, foundQuiz.sourceBackend); } else { alert("Quiz not found or deleted."); loadingScreen.classList.add('hidden'); fetchHomeData(); showDashboard(); } } else { throw new Error("Could not connect to database."); } } catch(e) { console.error(e); alert("Error finding quiz."); loadingScreen.classList.add('hidden'); showDashboard(); } } else { await fetchHomeData(); const page = params.get('page'); if(page === 'about') { activeTab = 'about'; } else if(page === 'search') { activeTab = 'search'; } else if(page === 'dashboard') { activeTab = 'dashboard'; } showDashboard(); } }
+        async function initialize_app() { initThemeEngine(); window.addEventListener('popstate', handleBackNavigation); recordVisit(); fetchAboutData(); checkAdminStatus(); checkEditorStatus(); loadSavedBackendDetails(); setupDemoQuizzes(); if(checkDemoHash()) return; const params = new URLSearchParams(window.location.search); if (params.get('page') === 'about' && params.get('section')) { activeTab = 'about'; showDashboard(); const sectionId = params.get('section'); setTimeout(() => { const el = document.getElementById(sectionId); if(el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.style.border = '2px solid var(--secondary-color)'; setTimeout(() => { el.style.border = '1px solid var(--border-color)'; }, 3000); } }, 500); return; } if (params.get('share_id')) { activeTab = 'about'; showDashboard(); handleAboutItemDeepLink(params); return; } if (params.get('quiz')) { if(params.get('id') && params.get('source')) { startDeepLinkQuiz(params.get('id'), params.get('source')); return; } loadingScreen.classList.remove('hidden'); document.getElementById('loading-text').textContent = "Finding Quiz..."; try { const adminResponse = await apiCall('get_all_editor_data', {}); if(adminResponse.status === 'success') { const allData = adminResponse.aggregatedData; const targetSlug = params.get('quiz'); let foundQuiz = null; function searchForQuiz(items) { if(!items) return; for(const item of items) { const itemSlug = generateSlug(getDisplayName(item.name)); if(itemSlug === targetSlug || item.id === targetSlug) { foundQuiz = item; return; } if(item.type === 'folder') searchForQuiz(item.items); } } searchForQuiz(allData.items); if(foundQuiz && foundQuiz.sourceBackend) { startDeepLinkQuiz(foundQuiz.backendSheetId, foundQuiz.sourceBackend); } else { alert("Quiz not found or deleted."); loadingScreen.classList.add('hidden'); fetchHomeData(); showDashboard(); } } else { throw new Error("Could not connect to database."); } } catch(e) { console.error(e); alert("Error finding quiz."); loadingScreen.classList.add('hidden'); showDashboard(); } } else { await fetchHomeData(); const page = params.get('page'); if(page === 'about') { activeTab = 'about'; } else if(page === 'search') { activeTab = 'search'; } else if(page === 'dashboard') { activeTab = 'dashboard'; } showDashboard(); } }
         async function startDeepLinkQuiz(quizId, sourceUrl) { loadingScreen.classList.remove('hidden'); document.getElementById('loading-text').textContent = "Loading Quiz..."; const quizData = await fetchBackendQuizData(quizId, sourceUrl); if (quizData) { const adStatusResult = await apiCall('get_quiz_ad_status', { sourceBackendUrl: sourceUrl }); quizData.backendSheetId = quizId; quizData.backendUrl = sourceUrl; quizData.isShared = true; quizData.isAdFree = (adStatusResult?.status === 'success') ? adStatusResult.isAdFree : false; const slug = generateSlug(getDisplayName(quizData.quizTitle)); const url = new URL(window.location); url.searchParams.set('quiz', slug); url.searchParams.delete('id'); url.searchParams.delete('source'); window.history.replaceState(null, null, url); (new initializePlayer(quizData)).start(); } else { alert("Could not load shared quiz."); renderDashboard(); } loadingScreen.classList.add('hidden'); }
         function performSearch(term) { const searchTerm = term.trim().toLowerCase(); if (!searchTerm) { searchResultsContainer.innerHTML = ''; return; } const results = flatSearchIndex.filter(item => { const nameMatch = getDisplayName(item.name)?.toLowerCase().includes(searchTerm), subjectMatch = getDisplayName(item.subject)?.toLowerCase().includes(searchTerm), authorMatch = item.editorUsername?.toLowerCase().includes(searchTerm); return nameMatch || subjectMatch || authorMatch; }); searchResultsContainer.innerHTML = ''; if (results.length === 0) { searchResultsContainer.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: #888;">No results for "${term}".</p>`; return; } results.forEach(item => { const itemEl = document.createElement('div'); itemEl.className = 'dashboard-item'; const displayName = getDisplayName(item.name) || "Untitled"; let badgeHTML = (item.editorUsername) ? `<span class="editor-badge">By: ${item.editorUsername}</span>` : ''; let tagsHTML = ''; if(item.type === 'quiz' || item.type === 'demo-quiz') { let idStr = item.id; if(idStr.length > 10) idStr = idStr.substring(0,8) + '...'; let subjectTag = item.subject ? `<span class="tag-badge subject">${getDisplayName(item.subject)}</span>` : ''; let diffTag = item.difficulty ? `<span class="tag-badge difficulty">${item.difficulty}</span>` : ''; let timeTag = item.timeLimit ? `<span class="item-time">⏱️ ${item.timeLimit}m</span>` : ''; tagsHTML = `<div class="item-tags">${subjectTag} ${diffTag} <span>ID: ${idStr}</span> ${timeTag}</div>`; } if (item.type === 'quiz' || item.type === 'demo-quiz') { itemEl.classList.add('quiz-item'); itemEl.innerHTML = `<div class="card-content" data-id="${item.id}" data-type="${item.type}"><div class="card-icon">📝</div><h3 class="item-name">${displayName}</h3>${badgeHTML}<span class="item-type-label">${item.type === 'demo-quiz' ? 'Featured Quiz' : 'Quiz'}</span>${tagsHTML}</div>`; } else { itemEl.classList.add('folder-item'); itemEl.innerHTML = `<div class="card-content" data-id="${item.id}" data-type="folder"><div class="card-icon">🗁</div><h3 class="item-name">${displayName}</h3>${badgeHTML}<span class="item-type-label">Folder</span></div>`; } searchResultsContainer.appendChild(itemEl); }); }
         searchInput.addEventListener('input', () => { const term = searchInput.value.trim().toLowerCase(); suggestionsContainer.innerHTML = ''; if (!term) { suggestionsContainer.classList.add('hidden'); return; } const suggestions = flatSearchIndex.filter(item => { const nameMatch = getDisplayName(item.name)?.toLowerCase().includes(term), subjectMatch = getDisplayName(item.subject)?.toLowerCase().includes(term), authorMatch = item.editorUsername?.toLowerCase().includes(term); return nameMatch || subjectMatch || authorMatch; }).slice(0, 5); if (suggestions.length > 0) { suggestions.forEach(item => { const div = document.createElement('div'); div.className = 'suggestion-item'; div.innerHTML = `<strong>${getDisplayName(item.name)}</strong> <span>${item.type} by ${item.editorUsername || 'Unknown'}</span>`; div.onclick = () => { searchInput.value = getDisplayName(item.name); suggestionsContainer.classList.add('hidden'); performSearch(getDisplayName(item.name)); }; suggestionsContainer.appendChild(div); }); suggestionsContainer.classList.remove('hidden'); } else { suggestionsContainer.classList.add('hidden'); } });

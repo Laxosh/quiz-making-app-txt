@@ -1,0 +1,347 @@
+// ==========================================
+// ADMIN BACKEND (Version 13 - Free Tier Pool Manager)
+// ==========================================
+
+
+let DB_SHEET_ID = PropertiesService.getScriptProperties().getProperty('DB_SHEET_ID');
+const DB_NAME = "Quiz_Tool_Admin_Database";
+
+
+// --- 1. FREE EDITOR BACKEND POOL ---
+// Add your free editor backend links here. The script will rotate through them.
+const FREE_TIER_BACKENDS = [
+  "https://script.google.com/macros/s/AKfycbwkXfJ0jQDVJUETdKbRvYUmRFtFlBWRMPHnRHD1Gbt5Xtfm7HtqMYtLBGYYWXLk8LNb/exec",
+  // You can add more links here manually
+];
+
+
+function doPost(e) {
+  const lock = LockService.getScriptLock();
+  lock.tryLock(30000);
+
+
+  try {
+    const data = JSON.parse(e.postData.contents);
+    const action = data.action;
+    const ss = getDB();
+
+
+    switch (action) {
+      // --- Auth & Account ---
+      case "admin_login": return handleAdminLogin(ss, data);
+      case "create_editor_account": return handleCreateEditor(ss, data);
+      case "request_otp": return handleRequestOTP(ss, data);
+      case "validate_otp": return handleValidateOTP(ss, data);
+      case "update_editor_backend_link": return handleUpdateEditorLink(ss, data);
+     
+      // --- Data Aggregation ---
+      case "get_all_editor_data": return handleGetAllEditorData(ss);
+     
+      // --- Ad Control ---
+      case "get_quiz_ad_status": return handleGetQuizAdStatus(ss, data);
+     
+      // --- NEW: Free Tier Management ---
+      case "assign_free_backend": return handleAssignFreeBackend(ss);
+      case "get_free_user_data": return handleGetFreeUserData(ss, data);
+
+
+      // --- About Section & Analytics ---
+      case "save_about_item": return handleSaveAboutItem(ss, data);
+      case "get_about_data": return handleGetAboutData(ss);
+      case "delete_about_item": return handleDeleteAboutItem(ss, data);
+      case "record_visit": return handleRecordVisit(ss);
+     
+      default: return errorResponse("Unknown action: " + action);
+    }
+  } catch (error) {
+    return errorResponse("Backend Error: " + error.toString());
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+
+// --- NEW: Round-Robin Backend Assignment ---
+function handleAssignFreeBackend(ss) {
+  if (FREE_TIER_BACKENDS.length === 0) return errorResponse("No free backends configured.");
+ 
+  const props = PropertiesService.getScriptProperties();
+  let lastIndex = parseInt(props.getProperty('LAST_FREE_INDEX') || '-1');
+  let nextIndex = lastIndex + 1;
+ 
+  if (nextIndex >= FREE_TIER_BACKENDS.length) {
+    nextIndex = 0; // Loop back to start
+  }
+ 
+  props.setProperty('LAST_FREE_INDEX', nextIndex.toString());
+ 
+  return successResponse({
+    url: FREE_TIER_BACKENDS[nextIndex],
+    message: "Free backend assigned"
+  });
+}
+
+
+// --- NEW: Fetch Data from All Free Pools ---
+function handleGetFreeUserData(ss, data) {
+  const userGmail = data.gmail;
+  if(!userGmail) return errorResponse("Email required");
+
+
+  let aggregatedQuizzes = [];
+  let aggregatedFolders = [];
+
+
+  // Scan ALL free pools to find content
+  FREE_TIER_BACKENDS.forEach(link => {
+    try {
+      const resp = UrlFetchApp.fetch(link, { 'method': 'post', 'contentType': 'application/json', 'payload': JSON.stringify({ action: 'get_all_data' }), 'muteHttpExceptions': true });
+      const res = JSON.parse(resp.getContentText());
+     
+      if (res.status === 'success') {
+        // Since Editor Backend V8 doesn't return creator email in 'get_all_data',
+        // we return ALL items from the free pool. The Frontend must filter or user sees shared content.
+        // We tag them so the frontend knows they are free tier.
+        if (res.quizzes) {
+          res.quizzes.forEach(q => {
+             q.sourceBackend = link;
+             q.isFreeTier = true;
+             aggregatedQuizzes.push(q);
+          });
+        }
+        if (res.folders) {
+          res.folders.forEach(f => {
+             f.sourceBackend = link;
+             f.isFreeTier = true;
+             aggregatedFolders.push(f);
+          });
+        }
+      }
+    } catch (e) {
+      // Continue if one node is down
+    }
+  });
+
+
+  return successResponse({
+    status: 'success',
+    quizzes: aggregatedQuizzes,
+    folders: aggregatedFolders
+  });
+}
+
+
+// --- MODIFIED: Create Editor Account (Supports Free Tier Tab) ---
+function handleCreateEditor(ss, data) {
+  const sheet = ss.getSheetByName("Editors");
+  const freeSheet = ss.getSheetByName("Free_Editors"); // Separate tab
+ 
+  if(sheet.getRange("A1").getValue() !== "Hide Ads") {
+    sheet.insertColumns(1);
+    sheet.getRange("A1").setValue("Hide Ads").setFontWeight("bold");
+    sheet.getRange("A2:A").insertCheckboxes();
+  }
+ 
+  // Check duplicates
+  const rows = sheet.getDataRange().getValues();
+  for(let i=0; i<rows.length; i++) if(rows[i][1] == data.gmail) return errorResponse("Gmail exists.");
+ 
+  // 1. Add to Main Editors Tab
+  sheet.appendRow([false, data.gmail, data.username, data.backendLink || "", new Date()]);
+  sheet.getRange(sheet.getLastRow(), 1).insertCheckboxes();
+ 
+  // 2. If Free User (Empty Link), Add to Free_Editors Tab
+  if (!data.backendLink || data.backendLink.trim() === "") {
+      freeSheet.appendRow([data.gmail, data.username, new Date()]);
+  }
+ 
+  return successResponse({ message: "Created", profile: data });
+}
+
+
+// --- MODIFIED: Get All Data (Includes Free Pool in Home Feed) ---
+function handleGetAllEditorData(ss) {
+    const editorSheet = ss.getSheetByName("Editors");
+    if (editorSheet.getLastRow() < 2) return successResponse({ aggregatedData: { items: [] }, allEditors: [] });
+   
+    if(editorSheet.getRange("A1").getValue() !== "Hide Ads") {
+        editorSheet.insertColumns(1);
+        editorSheet.getRange("A1").setValue("Hide Ads").setFontWeight("bold");
+        editorSheet.getRange("A2:A").insertCheckboxes();
+    }
+
+
+    const editorRows = editorSheet.getRange(2, 1, editorSheet.getLastRow() - 1, 4).getValues();
+    let allQuizzes = [], allFolders = [], allEditors = [];
+   
+    // 1. Fetch from PRO Editors (Private Links)
+    editorRows.forEach(row => {
+        let hideAds = (row[0] === true || row[0] === "TRUE");
+        let gmail = row[1];
+        let username = row[2];
+        let link = row[3];
+
+
+        if (link && link.trim() !== "") {
+            allEditors.push({ username, gmail });
+            fetchFromBackend(link, username, gmail, hideAds, allQuizzes, allFolders);
+        }
+    });
+
+
+    // 2. Fetch from FREE Tier Pool (Round Robin Links)
+    // We fetch from ALL pools to ensure nothing is missed in the Home Feed
+    FREE_TIER_BACKENDS.forEach(link => {
+       // Free tier always has ads shown (hideAds = false)
+       // We label the username as "Community (Free)" or similar since multiple users share it
+       fetchFromBackend(link, "Community User", "free_tier_user", false, allQuizzes, allFolders);
+    });
+
+
+    // Aggregate into Tree
+    const itemMap = new Map();
+    const homeDb = { items: [] };
+    itemMap.set('root', homeDb);
+
+
+    allFolders.forEach(f => itemMap.set(f.id, { id: f.id, type: 'folder', name: f.name, items: [], editorUsername: f.editorUsername, sourceBackend: f.sourceBackend, editorGmail: f.editorGmail }));
+    allFolders.forEach(f => {
+        const parent = itemMap.get(f.parentId) || itemMap.get('root');
+        const folder = itemMap.get(f.id);
+        if(parent && folder && !parent.items.some(i => i.id === f.id)) parent.items.push(folder);
+    });
+
+
+    allQuizzes.forEach(q => {
+        const parent = itemMap.get(q.parentId) || itemMap.get('root');
+        if (parent && !parent.items.some(i => i.backendSheetId === q.sheetId)) {
+            const staticId = `backend_${q.sheetId}`;
+            parent.items.push({
+              id: staticId, type: 'quiz', name: q.name, backendSheetId: q.sheetId, data: null,
+              editorUsername: q.editorUsername, sourceBackend: q.sourceBackend, editorGmail: q.editorGmail,
+              subject: q.subject, difficulty: q.difficulty, timeLimit: q.timeLimit,
+              isAdFree: q.isAdFree
+            });
+        }
+    });
+
+
+    return successResponse({ aggregatedData: homeDb, allEditors: allEditors });
+}
+
+
+function fetchFromBackend(link, username, gmail, hideAds, quizArr, folderArr) {
+    try {
+        const resp = UrlFetchApp.fetch(link, { 'method': 'post', 'contentType': 'application/json', 'payload': JSON.stringify({ action: 'get_all_data' }), 'muteHttpExceptions': true });
+        const res = JSON.parse(resp.getContentText());
+        if (res.status === 'success') {
+            if (res.quizzes) res.quizzes.forEach(q => {
+                q.editorUsername = username;
+                q.sourceBackend = link;
+                q.editorGmail = gmail;
+                q.isAdFree = hideAds;
+                if(!q.subject) q.subject = "";
+                if(!q.difficulty) q.difficulty = "";
+                if(!q.timeLimit) q.timeLimit = "";
+                quizArr.push(q);
+            });
+            if (res.folders) res.folders.forEach(f => { f.editorUsername = username; f.sourceBackend = link; f.editorGmail = gmail; folderArr.push(f); });
+        }
+    } catch (e) {}
+}
+
+
+function handleGetQuizAdStatus(ss, data) {
+    const sheet = ss.getSheetByName("Editors");
+    if (!data.sourceBackendUrl) return successResponse({ isAdFree: false });
+   
+    // Always show ads for Free Tier Links
+    if (FREE_TIER_BACKENDS.includes(data.sourceBackendUrl)) {
+        return successResponse({ isAdFree: false });
+    }
+
+
+    const rows = sheet.getDataRange().getValues();
+    for (let i = 1; i < rows.length; i++) {
+        if (rows[i][3] === data.sourceBackendUrl) {
+            let isAdFree = (rows[i][0] === true || rows[i][0] === "TRUE");
+            return successResponse({ isAdFree: isAdFree });
+        }
+    }
+    return successResponse({ isAdFree: false });
+}
+
+
+// --- STANDARD DB & UTIL FUNCTIONS ---
+function getDB() {
+  const props = PropertiesService.getScriptProperties();
+  let id = props.getProperty('DB_SHEET_ID');
+  if (id) { try { return SpreadsheetApp.openById(id); } catch (e) { id = null; } }
+  if (!id) {
+    const files = DriveApp.getFilesByName(DB_NAME);
+    if (files.hasNext()) {
+      const file = files.next();
+      id = file.getId();
+      props.setProperty('DB_SHEET_ID', id);
+      return SpreadsheetApp.openById(id);
+    }
+  }
+  return setupSheet();
+}
+
+
+function setupSheet() {
+  const ss = SpreadsheetApp.create(DB_NAME);
+  const id = ss.getId();
+  PropertiesService.getScriptProperties().setProperty('DB_SHEET_ID', id);
+
+
+  function createSheetWithHeaders(sheetName, headers) {
+    let sheet = ss.getSheetByName(sheetName);
+    if (!sheet) {
+      sheet = ss.insertSheet(sheetName);
+      sheet.getRange(1, 1, 1, headers.length).setValues([headers]).setFontWeight("bold");
+    }
+  }
+
+
+  createSheetWithHeaders("Admin_Config", ["Email", "Password", "CreatedAt"]);
+  createSheetWithHeaders("Editors", ["Hide Ads", "EditorGmail", "Username", "BackendLink", "CreatedAt"]);
+  createSheetWithHeaders("Free_Editors", ["EditorGmail", "Username", "CreatedAt"]); // New Tab for Free Users
+  createSheetWithHeaders("OTPs", ["EditorGmail", "OTP", "ExpiryTimestamp"]);
+  createSheetWithHeaders("About_Data", ["ID", "Type", "Title", "Content", "MimeType", "Timestamp"]);
+  createSheetWithHeaders("App_Analytics", ["Metric", "Value", "LastUpdateDate"]);
+
+
+  const adminSheet = ss.getSheetByName("Admin_Config");
+  if (adminSheet.getLastRow() < 2) adminSheet.appendRow(["admin@gmail.com", "1234", new Date()]);
+ 
+  const analyticsSheet = ss.getSheetByName("App_Analytics");
+  if (analyticsSheet.getLastRow() < 2) {
+    const today = new Date().toDateString();
+    analyticsSheet.appendRow(["Daily", 0, today]);
+    analyticsSheet.appendRow(["Weekly", 0, today]);
+    analyticsSheet.appendRow(["Monthly", 0, today]);
+    analyticsSheet.appendRow(["Yearly", 0, today]);
+    analyticsSheet.appendRow(["Lifetime", 0, today]);
+  }
+ 
+  const sheet1 = ss.getSheetByName("Sheet1");
+  if(sheet1) ss.deleteSheet(sheet1);
+
+
+  return ss;
+}
+
+
+function handleRequestOTP(ss, data) { const sheet = ss.getSheetByName("Editors"); const rows = sheet.getDataRange().getValues(); let found = false; for(let i=0; i<rows.length; i++) if(rows[i][1] == data.gmail) found = true; if(!found) return errorResponse("Email not found."); const otp = Math.floor(100000 + Math.random() * 900000).toString(); ss.getSheetByName("OTPs").appendRow([data.gmail, otp, new Date(new Date().getTime() + 120000)]); try { MailApp.sendEmail(data.gmail, "Login OTP", "OTP: " + otp); } catch(e) {} return successResponse({ message: "OTP Sent" }); }
+function handleValidateOTP(ss, data) { const sheet = ss.getSheetByName("OTPs"); const rows = sheet.getDataRange().getValues(); for(let i=rows.length-1; i>0; i--) { if(rows[i][0] == data.gmail && rows[i][1] == data.otp) { if(new Date() < new Date(rows[i][2])) { sheet.deleteRow(i+1); const eSheet = ss.getSheetByName("Editors"); const eRows = eSheet.getDataRange().getValues(); for(let j=1; j<eRows.length; j++) { if(eRows[j][1] == data.gmail) { return successResponse({ message: "Success", profile: { username: eRows[j][2], gmail: eRows[j][1], backendLink: eRows[j][3] } }); } } } } } return errorResponse("Invalid or Expired OTP"); }
+function handleUpdateEditorLink(ss, data) { const sheet = ss.getSheetByName("Editors"); const rows = sheet.getDataRange().getValues(); for(let i=1; i<rows.length; i++) { if(rows[i][1] == data.gmail) { sheet.getRange(i+1, 4).setValue(data.backendLink); return successResponse({ message: "Updated" }); } } return errorResponse("Editor not found"); }
+function handleAdminLogin(ss, data) { const sheet = ss.getSheetByName("Admin_Config"); const rows = sheet.getDataRange().getValues(); for (let i = 1; i < rows.length; i++) { if (String(rows[i][0]).trim() === String(data.email).trim() && String(rows[i][1]).trim() === String(data.password).trim()) return successResponse({ message: "Admin verified." }); } return errorResponse("Invalid Credentials"); }
+function handleRecordVisit(ss) { const sheet = ss.getSheetByName("App_Analytics"); const data = sheet.getDataRange().getValues(); const today = new Date(); const todayStr = today.toDateString(); const checkDiff = (d1, d2, type) => { const date1 = new Date(d1); const date2 = new Date(d2); if (type === 'day') return date1.toDateString() !== date2.toDateString(); if (type === 'week') { const getSunday = (d) => { const t = new Date(d); t.setDate(t.getDate() - t.getDay()); return t.toDateString(); }; return getSunday(date1) !== getSunday(date2); } if (type === 'month') return date1.getMonth() !== date2.getMonth() || date1.getFullYear() !== date2.getFullYear(); if (type === 'year') return date1.getFullYear() !== date2.getFullYear(); return false; }; let lifetimeVal = parseInt(data[5][1]) + 1; sheet.getRange(6, 2).setValue(lifetimeVal); sheet.getRange(6, 3).setValue(todayStr); let dailyVal = checkDiff(today, data[1][2], 'day') ? 1 : parseInt(data[1][1]) + 1; sheet.getRange(2, 2, 1, 2).setValues([[dailyVal, todayStr]]); let weeklyVal = checkDiff(today, data[2][2], 'week') ? 1 : parseInt(data[2][1]) + 1; sheet.getRange(3, 2, 1, 2).setValues([[weeklyVal, todayStr]]); let monthlyVal = checkDiff(today, data[3][2], 'month') ? 1 : parseInt(data[3][1]) + 1; sheet.getRange(4, 2, 1, 2).setValues([[monthlyVal, todayStr]]); let yearlyVal = checkDiff(today, data[4][2], 'year') ? 1 : parseInt(data[4][1]) + 1; sheet.getRange(5, 2, 1, 2).setValues([[yearlyVal, todayStr]]); return successResponse({ message: "Visit Recorded" }); }
+function handleSaveAboutItem(ss, data) { const sheet = ss.getSheetByName("About_Data"); const id = "abt_" + new Date().getTime(); sheet.appendRow([id, data.type, data.title, data.content, data.mimeType || "", new Date()]); return successResponse({ message: "Saved" }); }
+function handleGetAboutData(ss) { const sheet = ss.getSheetByName("About_Data"); if (sheet.getLastRow() < 2) return successResponse({ items: [] }); const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 6).getValues(); const items = rows.map(r => ({ id: r[0], type: r[1], title: r[2], content: r[3], mimeType: r[4] })).reverse(); return successResponse({ items: items }); }
+function handleDeleteAboutItem(ss, data) { const sheet = ss.getSheetByName("About_Data"); const rows = sheet.getDataRange().getValues(); for (let i = 1; i < rows.length; i++) { if (String(rows[i][0]) === String(data.id)) { sheet.deleteRow(i + 1); return successResponse({ message: "Deleted" }); } } return errorResponse("Not found"); }
+function successResponse(payload) { return ContentService.createTextOutput(JSON.stringify({ status: "success", ...payload })).setMimeType(ContentService.MimeType.JSON); }
+function errorResponse(msg) { return ContentService.createTextOutput(JSON.stringify({ status: "error", message: msg })).setMimeType(ContentService.MimeType.JSON); }
+
